@@ -501,3 +501,18 @@ body { letter-spacing:-.012em; }
 .sync-label.sync-error{color:#c65b50}
 .sync-label.sync-error .sync-dot{background:#c65b50}
 .sync-error-banner{margin:12px auto 0;width:min(calc(100% - 32px),1000px);padding:11px 14px;border:1px solid #d98a7e;border-radius:9px;background:rgba(217,138,126,.12);color:#b94f45;font-size:12px;line-height:1.5}
+
+
+/* Habit system: clear progress summaries and measurable check-ins */
+.habit-summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 16px}
+.habit-summary-grid .overview-card{display:grid;gap:6px}
+.habit-summary-label{font-size:9px;letter-spacing:1px;font-weight:800;color:var(--muted)}
+.habit-summary-grid .overview-card strong{font:800 27px Manrope;letter-spacing:-.8px}
+.habit-summary-grid .overview-card>span:last-child{font-size:10px;color:var(--muted)}
+.habit-row-expanded{align-items:flex-start}
+.habit-row-expanded .habit-info{display:grid;gap:7px}
+.habit-measure-row{display:flex;gap:8px;align-items:center;max-width:340px}
+.habit-measure-row input{width:120px;min-width:0;height:35px;padding:0 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font-size:11px}
+.habit-progress-track{height:5px;max-width:260px;border-radius:8px;background:var(--surface2);overflow:hidden}
+.habit-progress-track span{display:block;height:100%;border-radius:8px;background:var(--green);transition:width .2s}
+@media(max-width:640px){.habit-summary-grid{gap:8px}.habit-summary-grid .overview-card{padding:12px}.habit-summary-grid .overview-card strong{font-size:23px}.habit-summary-grid .overview-card>span:last-child{font-size:9px}.habit-row-expanded{flex-wrap:wrap}.habit-row-expanded .habit-info{flex:1 1 calc(100% - 55px);min-width:0}.habit-row-expanded .habit-measure-row{max-width:100%}.habit-row-expanded .habit-measure-row input{flex:1;width:70px}}
