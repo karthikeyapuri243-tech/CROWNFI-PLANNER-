@@ -1,5 +1,5 @@
 {
-  "name": "Crown Planner",
+  "name": "KRAM",
   "description": "A beautifully crafted day scheduler and task planner featuring real-time calendar timetables, drag-and-drop blocking, natural language tasks, and AI-powered timetable parsing.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
