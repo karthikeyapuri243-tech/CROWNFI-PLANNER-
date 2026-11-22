@@ -302,3 +302,60 @@ body { letter-spacing:-.012em; }
 .fixed-event-span .timetable-event-actions{align-self:flex-start}
 @media(max-width:640px){.full-day-timeline{--hour-height:76px}.fixed-event-span{left:55px;right:9px;padding:9px 8px}.fixed-event-span strong{font-size:10px}.fixed-event-span span{font-size:9px}.fixed-event-span .timetable-event-actions button{width:24px;height:24px}}
 
+
+/* KRAM timetable refinement: align exact hours and normalize type scale */
+.full-day-timeline {
+  --hour-height: 78px;
+  position: relative;
+  padding-top: 0;
+  padding-bottom: 0;
+  min-height: calc(var(--hour-height) * 24);
+}
+.timetable-hour {
+  box-sizing: border-box;
+  height: var(--hour-height);
+  min-height: var(--hour-height);
+}
+.timetable-hour-label {
+  padding-top: 14px;
+  font-size: 12px;
+  line-height: 1.3;
+  letter-spacing: -.1px;
+  font-weight: 700;
+}
+.timetable-open-slot {
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 4px 7px;
+}
+.timetable-event strong {
+  font-size: 12px;
+  line-height: 1.35;
+  letter-spacing: -.15px;
+  font-weight: 700;
+}
+.timetable-event span {
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+.fixed-event-span {
+  top: var(--unused, auto);
+  padding: 12px 13px;
+  gap: 10px;
+}
+.fixed-event-span > div:first-child { gap: 6px; }
+.fixed-event-span .timetable-event-actions button {
+  width: 30px;
+  height: 30px;
+}
+.timetable-event-actions svg { width: 15px; height: 15px; }
+@media(max-width:640px) {
+  .full-day-timeline { --hour-height: 76px; }
+  .timetable-hour-label { font-size: 11px; padding-top: 13px; }
+  .timetable-open-slot { font-size: 10px; }
+  .timetable-event strong { font-size: 11px; }
+  .timetable-event span { font-size: 10px; }
+  .fixed-event-span { padding: 10px 9px; gap: 5px; }
+  .fixed-event-span .timetable-event-actions button { width: 25px; height: 25px; }
+}
