@@ -33,6 +33,19 @@ jobs:
         run: npm run build
       - name: Generate Android project
         run: npx cap add android
+      - name: Add Android exact-alarm permission
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          content = manifest.read_text()
+          permission = '    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />'
+          if permission not in content:
+              if "<application" not in content:
+                  raise SystemExit("AndroidManifest.xml has no application element")
+              content = content.replace("<application", permission + "\\n    <application", 1)
+              manifest.write_text(content)
+          PY
       - name: Sync native plugins and web assets
         run: npx cap sync android
       - name: Build installable debug APK
