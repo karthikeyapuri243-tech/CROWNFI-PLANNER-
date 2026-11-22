@@ -135,6 +135,18 @@ export default function App() {
     if(!user||!blockTitle.trim()){setBlockError('Enter a name for this commitment.');return;}
     if(timeToMinutes(blockEnd)<=timeToMinutes(blockStart)){setBlockError('End time must be later than start time.');return;}
     if(blockRepeat==='weekly'&&!blockDays.length){setBlockError('Choose at least one day.');return;}
+    const newStart=timeToMinutes(blockStart),newEnd=timeToMinutes(blockEnd);
+    const overlapsExisting=blocks.some(existing=>{
+      if(existing.id===editingBlock?.id)return false;
+      const existingStart=timeToMinutes(existing.startTime),existingEnd=timeToMinutes(existing.endTime);
+      if(newStart>=existingEnd||newEnd<=existingStart)return false;
+      if(blockRepeat==='once'&&existing.repeat==='once')return blockDate===existing.date;
+      if(blockRepeat==='weekly'&&existing.repeat==='weekly')return blockDays.some(day=>existing.days.includes(day));
+      if(blockRepeat==='once'&&existing.repeat==='weekly')return existing.days.includes(new Date(blockDate+'T12:00:00').getDay());
+      if(blockRepeat==='weekly'&&existing.repeat==='once')return blockDays.includes(new Date((existing.date||'')+'T12:00:00').getDay());
+      return false;
+    });
+    if(overlapsExisting){setBlockError('This time overlaps another commitment. Choose a different time or day.');return;}
     try{const payload={title:blockTitle.trim(),startTime:blockStart,endTime:blockEnd,repeat:blockRepeat,days:blockRepeat==='weekly'?blockDays:[],date:blockRepeat==='once'?blockDate:''};if(editingBlock) await updatePlannerBlock(editingBlock.id,payload);else await createPlannerBlock(user.uid,payload);setBlockOpen(false);setBlockTitle('');setEditingBlock(null);}
     catch(error){console.error(error);setBlockError('Could not save. Check your connection and Firebase permissions.');}
   };
