@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'src/**'
+      - 'public/**'
       - 'package.json'
       - 'package-lock.json'
       - 'vite.config.ts'
@@ -33,6 +34,15 @@ jobs:
         run: npm run build
       - name: Generate Android project
         run: npx cap add android
+      - name: Generate KRAM Android launcher icons
+        run: |
+          python3 -m pip install --quiet cairosvg
+          mkdir -p resources
+          python3 - <<'PY'
+          import cairosvg
+          cairosvg.svg2png(url='public/kram-icon.svg', write_to='resources/icon.png', output_width=1024, output_height=1024)
+          PY
+          npx --yes @capacitor/assets generate --android
       - name: Add Android exact-alarm permission
         run: |
           python3 - <<'PY'
