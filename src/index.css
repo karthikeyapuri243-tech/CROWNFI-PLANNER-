@@ -64,3 +64,88 @@
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
+
+
+/* Crownfi — Unfold-inspired visual redesign: warm, editorial, calm and tactile */
+:root { --bg:#f4f2ec; --surface:#fffefa; --surface2:#eeece4; --text:#20251f; --muted:#81867c; --line:#e8e5dc; --green:#285b43; --green-soft:#e6eee5; --shadow:0 10px 35px rgba(38,47,35,.055); }
+:root.dark { --bg:#111713; --surface:#1a211c; --surface2:#252e27; --text:#f0f1e9; --muted:#a1a99f; --line:#303a32; --green:#a6c6a9; --green-soft:#28392d; --shadow:0 12px 34px rgba(0,0,0,.22); }
+body { letter-spacing:-.012em; }
+.sidebar { background:var(--bg); border-right-color:transparent; padding:31px 20px 20px; }
+.brand { padding-bottom:54px; }
+.brand-icon { width:40px; height:40px; border-radius:14px; background:#285b43; }
+.nav-item { height:48px; border-radius:13px; font-size:13px; }
+.nav-item.active { background:var(--surface); box-shadow:var(--shadow); }
+.main-area { background:var(--bg); }
+.topbar { background:color-mix(in srgb,var(--bg) 88%,transparent); backdrop-filter:blur(18px); border-bottom-color:transparent; height:72px; }
+.page-content { max-width:1160px; padding-top:48px; }
+.page-heading { margin-bottom:32px; }
+.page-heading h1 { font-size:clamp(32px,3.3vw,43px); letter-spacing:-1.9px; line-height:1.08; }
+.page-heading p { font-size:13px; margin-top:8px; }
+.eyebrow { letter-spacing:1.7px; font-size:9px; }
+.primary-button { height:44px; border-radius:999px; padding-inline:19px; box-shadow:0 5px 14px rgba(40,91,67,.13); }
+.secondary-button { border-radius:999px; }
+.date-switch { margin-bottom:20px; }
+.date-current { border-radius:999px; background:var(--surface); padding-inline:16px; height:39px; }
+.overview-grid { gap:16px; margin-bottom:26px; }
+.overview-card { border-radius:21px; padding:23px 24px; box-shadow:none; }
+.progress-card { background:#285b43; border-color:#285b43; color:#f8f7ef; position:relative; overflow:hidden; }
+.progress-card:after { content:''; position:absolute; width:210px; height:210px; border:1px solid rgba(255,255,255,.12); border-radius:50%; right:-74px; top:-110px; box-shadow:0 0 0 22px rgba(255,255,255,.035),0 0 0 46px rgba(255,255,255,.025); pointer-events:none; }
+.progress-card .card-topline, .progress-card .card-topline svg { color:#d1dfd2; }
+.progress-card .progress-main strong { font-size:43px; color:#fff; }
+.progress-card .progress-main p { color:#d1dfd2; font-size:12px; }
+.progress-card .ring { width:66px; height:66px; background:conic-gradient(#dcebd9 calc(var(--progress)*1%),rgba(255,255,255,.17) 0); }
+.progress-card .ring:before { background:#285b43; inset:6px; }
+.progress-card .ring div { color:#fff; font-size:11px; }
+.progress-card .progress-track { background:rgba(255,255,255,.17); height:6px; }
+.progress-card .progress-track span { background:#dcebd9; }
+.overview-card:not(.progress-card) { background:var(--surface); }
+.overview-card:not(.progress-card) .stat-number { font-size:38px; margin-top:24px; }
+.overview-card:not(.progress-card) .card-topline { font-size:9px; }
+.content-section { margin-top:34px; }
+.section-heading { margin-bottom:17px; }
+.section-heading h2, .week-glance-heading h2 { font-size:19px; letter-spacing:-.65px; }
+.section-heading p { font-size:12px; margin-top:6px; }
+.task-list, .habit-list { background:var(--surface); border:1px solid var(--line); border-radius:19px; }
+.task-row { padding:16px 19px; min-height:76px; }
+.task-row:hover, .habit-row:hover { background:var(--surface2); }
+.task-check { width:28px; height:28px; border:1px solid var(--line); border-radius:50%; }
+.task-row.completed .task-check { border-color:var(--green); }
+.task-main strong { font-size:13px; }
+.task-main small { font-size:10px; margin-top:7px; }
+.habit-row { padding:16px 19px; min-height:76px; }
+.habit-emoji { width:42px; height:42px; border-radius:14px; }
+.habit-info strong { font-size:13px; }
+.habit-info span { font-size:11px; }
+.habit-check { border-radius:999px; height:36px; padding-inline:15px; }
+.week-glance { background:var(--surface); border:1px solid var(--line); border-radius:21px; padding:22px 24px 17px; margin:0 0 33px; }
+.week-glance-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.week-glance-heading h2 { font:700 19px Manrope; margin:6px 0 0; }
+.week-total { font:800 20px Manrope; color:var(--green); white-space:nowrap; }
+.week-total i { display:block; font:500 10px 'DM Sans'; color:var(--muted); text-align:right; font-style:normal; margin-top:2px; }
+.week-glance-bars { display:grid; grid-template-columns:repeat(7,1fr); gap:15px; max-width:490px; margin:20px auto 0; }
+.week-glance-day { display:grid; justify-items:center; gap:8px; }
+.week-glance-track { width:100%; max-width:38px; height:58px; border-radius:999px; background:var(--surface2); display:flex; align-items:flex-end; overflow:hidden; }
+.week-glance-track span { width:100%; min-height:0; border-radius:999px; background:var(--green); transition:height .45s cubic-bezier(.2,.75,.25,1); }
+.week-glance-label { font-size:10px; color:var(--muted); font-weight:600; }
+.chart-section { border-radius:21px; box-shadow:none; }
+.modal-card { border-radius:22px; padding:26px; }
+.modal-card input, .modal-card textarea, .modal-card select { border-radius:12px; padding:13px 14px; }
+.filter-pill { border-radius:999px; height:36px; padding-inline:16px; }
+@media(max-width:900px) { .overview-card { padding:19px; } .week-glance { padding:19px; } }
+@media(max-width:640px) {
+  .topbar { height:60px; }
+  .page-content { padding:28px 16px 38px; }
+  .page-heading h1 { font-size:30px; letter-spacing:-1.3px; }
+  .page-heading { margin-bottom:23px; }
+  .overview-grid { gap:10px; }
+  .overview-card { padding:16px 14px; border-radius:17px; }
+  .progress-card .progress-main strong { font-size:37px; }
+  .overview-card:not(.progress-card) .stat-number { font-size:31px; margin-top:19px; }
+  .week-glance { padding:17px 15px 14px; border-radius:18px; margin-bottom:27px; }
+  .week-glance-heading h2 { font-size:17px; }
+  .week-glance-bars { gap:9px; margin-top:17px; }
+  .week-glance-track { height:49px; }
+  .task-list, .habit-list { border-radius:16px; }
+  .task-row, .habit-row { padding:13px 12px; min-height:69px; }
+  .bottom-nav { height:72px; background:var(--bg); border-top-color:var(--line); }
+}
