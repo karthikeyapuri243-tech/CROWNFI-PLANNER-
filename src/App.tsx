@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState, type CSSProperties, type FormEvent } from
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { auth } from './lib/firebase';
 import Auth from './components/Auth';
-import { createPlannerTask, updatePlannerTask, deletePlannerTask, subscribePlannerTasks, createPlannerHabit, deletePlannerHabit, subscribePlannerHabits, setPlannerHabitCheckin, subscribePlannerCheckins } from './lib/plannerDb';
+import { createPlannerTask, updatePlannerTask, deletePlannerTask, subscribePlannerTasks, createPlannerBlock, deletePlannerBlock, subscribePlannerBlocks, createPlannerHabit, deletePlannerHabit, subscribePlannerHabits, setPlannerHabitCheckin, subscribePlannerCheckins } from './lib/plannerDb';
 import { CalendarDays, Check, CheckCircle2, ChevronLeft, ChevronRight, Circle, Clock3, Flame, LayoutDashboard, ListTodo, LogOut, Menu, Moon, Plus, Sun, Target, Trash2, TrendingUp, X } from 'lucide-react';
 
 type Task = { id:string; userId:string; title:string; notes?:string; dueDate:string; dueTime?:string; durationMinutes?:number; priority:'High'|'Medium'|'Low'; completed:boolean; createdAt:string };
 type Habit = { id:string; userId:string; name:string; emoji:string; createdAt:string };
+type ScheduleBlock = { id:string; userId:string; title:string; startTime:string; endTime:string; repeat:'weekly'|'once'; days:number[]; date?:string; createdAt:string };
 type Checkin = { id:string; userId:string; habitId:string; date:string; completed:boolean };
 type Tab = 'today'|'schedule'|'tasks'|'habits'|'progress';
 
@@ -24,6 +25,16 @@ export default function App() {
   const [tasks,setTasks] = useState<Task[]>([]);
   const [habits,setHabits] = useState<Habit[]>([]);
   const [checkins,setCheckins] = useState<Checkin[]>([]);
+  const [blocks,setBlocks] = useState<ScheduleBlock[]>([]);
+  const [blockOpen,setBlockOpen] = useState(false);
+  const [blockTitle,setBlockTitle] = useState('');
+  const [blockStart,setBlockStart] = useState('09:00');
+  const [blockEnd,setBlockEnd] = useState('10:00');
+  const [blockRepeat,setBlockRepeat] = useState<'weekly'|'once'>('weekly');
+  const [blockDate,setBlockDate] = useState(todayKey());
+  const [blockDays,setBlockDays] = useState<number[]>([1,2,3,4,5]);
+  const [blockError,setBlockError] = useState('');
+  const [dragTaskId,setDragTaskId] = useState('');
   const [tab,setTab] = useState<Tab>('today');
   const [selectedDate,setSelectedDate] = useState(todayKey());
   const [dark,setDark] = useState(() => localStorage.getItem('KRAM-theme') === 'dark');
@@ -60,7 +71,8 @@ export default function App() {
     const a=subscribePlannerTasks(user.uid,setTasks);
     const b=subscribePlannerHabits(user.uid,setHabits);
     const c=subscribePlannerCheckins(user.uid,setCheckins);
-    return () => {a();b();c();};
+    const d=subscribePlannerBlocks(user.uid,setBlocks);
+    return () => {a();b();c();d();};
   },[user]);
 
   const todaysTasks = useMemo(() => tasks.filter(t=>t.dueDate===selectedDate).sort((a,b)=>(a.dueTime||'').localeCompare(b.dueTime||'')),[tasks,selectedDate]);
@@ -115,32 +127,40 @@ export default function App() {
       setQuickTaskSaving(false);
     }
   };
-  const scheduleTasks = async () => {
-    if(!user || scheduling) return;
-    const pending=todaysTasks.filter(t=>!t.completed&&!t.dueTime).sort((a,b)=>priorityRank(a.priority)-priorityRank(b.priority)||a.createdAt.localeCompare(b.createdAt));
+
+  const activeBlocks = blocks.filter(b=>b.repeat==='weekly'?b.days.includes(new Date(selectedDate+'T12:00:00').getDay()):b.date===selectedDate);
+  const saveBlock = async (e:FormEvent) => {
+    e.preventDefault();setBlockError('');
+    if(!user||!blockTitle.trim()){setBlockError('Enter a name for this commitment.');return;}
+    if(timeToMinutes(blockEnd)<=timeToMinutes(blockStart)){setBlockError('End time must be later than start time.');return;}
+    if(blockRepeat==='weekly'&&!blockDays.length){setBlockError('Choose at least one day.');return;}
+    try{await createPlannerBlock(user.uid,{title:blockTitle.trim(),startTime:blockStart,endTime:blockEnd,repeat:blockRepeat,days:blockRepeat==='weekly'?blockDays:[],date:blockRepeat==='once'?blockDate:''});setBlockOpen(false);setBlockTitle('');}
+    catch(error){console.error(error);setBlockError('Could not save. Check your connection and Firebase permissions.');}
+  };
+  const openBlockForm=()=>{setBlockTitle('');setBlockStart('09:00');setBlockEnd('10:00');setBlockRepeat('weekly');setBlockDate(selectedDate);setBlockDays([1,2,3,4,5]);setBlockError('');setBlockOpen(true);};
+  const toggleBlockDay=(day:number)=>setBlockDays(current=>current.includes(day)?current.filter(d=>d!==day):[...current,day].sort());
+  const openNewTaskAt=(time:string)=>{openNewTask(selectedDate);setDueTime(time);};
+  const placeTaskAt=async(taskId:string,time:string)=>{
+    const task=tasks.find(t=>t.id===taskId);if(!task)return;
+    const start=timeToMinutes(time),finish=start+(task.durationMinutes||60);
+    const blocked=activeBlocks.some(x=>start<timeToMinutes(x.endTime)&&finish>timeToMinutes(x.startTime));
+    const occupied=todaysTasks.some(x=>x.id!==taskId&&!!x.dueTime&&start<timeToMinutes(x.dueTime)+(x.durationMinutes||60)&&finish>timeToMinutes(x.dueTime));
+    if(blocked||occupied){setSmartMessage('That slot overlaps another commitment. Choose another hour.');setDragTaskId('');return;}
+    try{await updatePlannerTask(taskId,{dueDate:selectedDate,dueTime:time,durationMinutes:task.durationMinutes||60});setSmartMessage('Task placed on your timetable.');}
+    catch(error){console.error(error);setSmartMessage('Could not move this task. Please try again.');}
+    setDragTaskId('');
+  };
+  const scheduleTasks=async()=>{
+    if(!user||scheduling)return;
+    const pending=todaysTasks.filter(t=>!t.completed&&!t.dueTime).sort((x,y)=>priorityRank(x.priority)-priorityRank(y.priority)||x.createdAt.localeCompare(y.createdAt));
     if(!pending.length){setSmartMessage('All unfinished tasks already have a time.');return;}
-    const dayStart=timeToMinutes(scheduleStart), dayEnd=timeToMinutes(scheduleEnd);
-    if(dayEnd<=dayStart){setSmartMessage('Your available end time must be later than your start time.');return;}
-    const occupied=todaysTasks.filter(t=>!!t.dueTime).map(t=>({start:timeToMinutes(t.dueTime!),end:timeToMinutes(t.dueTime!)+(t.durationMinutes||60)})).sort((a,b)=>a.start-b.start);
-    const planned:{task:Task;start:number;end:number}[]=[];
-    for(const task of pending){
-      const duration=task.durationMinutes||60;
-      let candidate=dayStart;
-      let placed=false;
-      while(candidate+duration<=dayEnd){
-        const conflict=[...occupied,...planned].find(slot=>candidate<slot.end+15&&candidate+duration>slot.start-15);
-        if(conflict){candidate=conflict.end+15;continue;}
-        planned.push({task,start:candidate,end:candidate+duration});placed=true;break;
-      }
-      if(!placed) continue;
-    }
-    if(!planned.length){setSmartMessage('There is not enough free time in your available hours. Try extending your day.');return;}
+    const occupied=[...activeBlocks.map(x=>({start:timeToMinutes(x.startTime),end:timeToMinutes(x.endTime)})),...todaysTasks.filter(t=>!!t.dueTime).map(t=>({start:timeToMinutes(t.dueTime!),end:timeToMinutes(t.dueTime!)+(t.durationMinutes||60)}))];
+    const planned:{task:Task;start:number}[]=[];
+    for(const task of pending){let candidate=0;const duration=task.durationMinutes||60;while(candidate+duration<=1440){const conflict=[...occupied,...planned.map(p=>({start:p.start,end:p.start+(p.task.durationMinutes||60)}))].find(slot=>candidate<slot.end&&candidate+duration>slot.start);if(conflict){candidate=conflict.end;continue;}planned.push({task,start:candidate});break;}}
+    if(!planned.length){setSmartMessage('No free slots remain in this 24-hour timetable.');return;}
     setScheduling(true);setSmartMessage('');
-    try{
-      for(const item of planned) await updatePlannerTask(item.task.id,{dueTime:minutesToTime(item.start),durationMinutes:item.task.durationMinutes||60});
-      const missed=pending.length-planned.length;
-      setSmartMessage(`${planned.length} task${planned.length===1?'':'s'} scheduled${missed?`. ${missed} did not fit in your available hours`:''}.`);
-    }catch(error){console.error('KRAM smart schedule failed:',error);setSmartMessage('Could not save the full schedule. Please check your connection and try again.');}
+    try{for(const item of planned)await updatePlannerTask(item.task.id,{dueTime:minutesToTime(item.start),durationMinutes:item.task.durationMinutes||60});setSmartMessage(planned.length+' task(s) placed in available time.');}
+    catch(error){console.error(error);setSmartMessage('Could not save the complete plan. Please try again.');}
     finally{setScheduling(false);}
   };
   const scheduledTasks=todaysTasks.filter(t=>!!t.dueTime).sort((a,b)=>(a.dueTime||'').localeCompare(b.dueTime||''));
@@ -197,12 +217,12 @@ export default function App() {
           <section className="content-section"><div className="section-heading"><div><h2>Today's tasks</h2><p>Keep it simple. Focus on what matters.</p></div><button className="text-button" onClick={()=>setTab('tasks')}>View all <ChevronRight size={16}/></button></div><TaskList tasks={todaysTasks} onToggle={toggleTask} onEdit={openEditTask} onDelete={deletePlannerTask} emptyAction={()=>openNewTask()}/></section>
           <section className="content-section"><div className="section-heading"><div><h2>Daily habits</h2><p>Show up for the small things.</p></div><button className="text-button" onClick={()=>setTab('habits')}>Manage habits <ChevronRight size={16}/></button></div><HabitList habits={habits} checkins={checkins} date={selectedDate} onToggle={toggleHabit}/></section>
         </>}
-        {tab==='schedule'&&<><div className="page-heading"><div><div className="eyebrow">MAKE ROOM FOR WHAT MATTERS</div><h1>My schedule</h1><p>Plan your day, one focused block at a time.</p></div><button className="primary-button" onClick={()=>openNewTask(selectedDate)}><Plus size={18}/> Schedule task</button></div>
-          <div className="schedule-date-row"><button className="icon-button" onClick={()=>{const d=new Date(selectedDate+'T12:00:00');d.setDate(d.getDate()-1);setSelectedDate(dateKey(d));setSmartMessage('');}}><ChevronLeft size={18}/></button><strong>{prettyDate(selectedDate,{weekday:'short',month:'long',day:'numeric',year:'numeric'})}</strong><button className="icon-button" onClick={()=>{const d=new Date(selectedDate+'T12:00:00');d.setDate(d.getDate()+1);setSelectedDate(dateKey(d));setSmartMessage('');}}><ChevronRight size={18}/></button><button className="text-button" onClick={()=>{setSelectedDate(todayKey());setSmartMessage('');}}>Today</button></div>
-          <section className="schedule-planner-card"><div className="schedule-card-heading"><div><span className="eyebrow">SMART PLANNER</span><h2>When are you available?</h2><p>Choose your working hours. KRAM will fit unscheduled tasks around existing plans.</p></div><div className="schedule-spark">✦</div></div><div className="schedule-hours"><label>Start time<input type="time" value={scheduleStart} onChange={e=>setScheduleStart(e.target.value)}/></label><label>End time<input type="time" value={scheduleEnd} onChange={e=>setScheduleEnd(e.target.value)}/></label></div><button className="primary-button smart-plan-button" onClick={scheduleTasks} disabled={scheduling}>{scheduling?'Building your day…':'✦  Build my schedule'}</button>{smartMessage&&<p className="schedule-message" role="status">{smartMessage}</p>}</section>
-          {scheduleConflicts.length>0&&<div className="schedule-warning"><strong>Schedule overlap detected</strong><span>{scheduleConflicts.map(t=>t.title).join(', ')} may overlap with an earlier task. Edit the times to fix this.</span></div>}
-          <section className="content-section schedule-section"><div className="section-heading"><div><h2>Your timeline</h2><p>{scheduledTasks.length} scheduled · {unscheduledTasks.length} without a time</p></div></div>{scheduledTasks.length===0?<div className="empty-state schedule-empty"><div className="empty-icon"><Clock3 size={23}/></div><strong>Your day is still open</strong><p>Add a task with a time or let Smart Planner arrange your unscheduled tasks.</p><button className="secondary-button" onClick={()=>openNewTask(selectedDate)}><Plus size={16}/> Add a scheduled task</button></div>:<div className="schedule-timeline">{scheduledTasks.map(t=><div className="timeline-row" key={t.id}><div className="timeline-time"><strong>{displayTime(t.dueTime!)}</strong><span>{t.durationMinutes||60} min</span></div><div className="timeline-line"><i/></div><button className={t.completed?'timeline-task is-done':'timeline-task'} onClick={()=>openEditTask(t)}><strong>{t.title}</strong><span>{displayTime(minutesToTime(timeToMinutes(t.dueTime!)+(t.durationMinutes||60)))} · {t.priority} priority</span></button><button className="icon-button timeline-edit" title="Edit scheduled task" onClick={()=>openEditTask(t)}><Clock3 size={16}/></button></div>)}</div>}</section>
-          {unscheduledTasks.length>0&&<section className="content-section"><div className="section-heading"><div><h2>Needs a time</h2><p>These tasks are waiting to be placed in your day.</p></div></div><div className="task-list">{unscheduledTasks.map(t=><div className="task-row" key={t.id}><div className="task-main"><strong>{t.title}</strong><small><i className={'priority-dot '+t.priority.toLowerCase()}/>{t.priority} priority · {t.durationMinutes||60} min</small></div><button className="secondary-button" onClick={()=>openEditTask(t)}>Set time</button></div>)}</div></section>}
+        {tab==='schedule'&&<><div className="page-heading"><div><div className="eyebrow">YOUR TIME, ALL 24 HOURS</div><h1>My timetable</h1><p>Recurring commitments, one-time events and flexible tasks in one place.</p></div><button className="primary-button" onClick={openBlockForm}><Plus size={18}/> Add commitment</button></div>
+          <div className="schedule-date-row"><button className="icon-button" onClick={()=>{const d=new Date(selectedDate+'T12:00:00');d.setDate(d.getDate()-1);setSelectedDate(dateKey(d));setSmartMessage('');}}><ChevronLeft size={18}/></button><strong>{prettyDate(selectedDate,{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</strong><button className="icon-button" onClick={()=>{const d=new Date(selectedDate+'T12:00:00');d.setDate(d.getDate()+1);setSelectedDate(dateKey(d));setSmartMessage('');}}><ChevronRight size={18}/></button><button className="text-button" onClick={()=>setSelectedDate(todayKey())}>Today</button></div>
+          <div className="timetable-week-strip">{Array.from({length:7},(_,i)=>{const d=new Date(selectedDate+'T12:00:00');d.setDate(d.getDate()-d.getDay()+i);const key=dateKey(d);return <button key={key} className={key===selectedDate?'timetable-day selected':'timetable-day'} onClick={()=>setSelectedDate(key)}><span>{d.toLocaleDateString('en-IN',{weekday:'short'})}</span><strong>{d.getDate()}</strong></button>})}</div>
+          <section className="schedule-planner-card timetable-tools"><div className="schedule-card-heading"><div><span className="eyebrow">SMART PLANNER</span><h2>Fill my free time</h2><p>Place unscheduled tasks around recurring commitments and timed tasks across the full day.</p></div><div className="schedule-spark">✦</div></div><button className="primary-button smart-plan-button" onClick={scheduleTasks} disabled={scheduling}>{scheduling?'Finding free time…':'✦  Auto-schedule tasks'}</button>{smartMessage&&<p className="schedule-message" role="status">{smartMessage}</p>}</section>
+          <section className="content-section schedule-section"><div className="section-heading"><div><h2>24-hour timeline</h2><p>Tap an empty hour to add a task. Drag an unscheduled task here on desktop.</p></div></div><div className="full-day-timeline">{Array.from({length:24},(_,hour)=>{const hourStart=hour*60;const hourBlocks=activeBlocks.filter(x=>timeToMinutes(x.startTime)>=hourStart&&timeToMinutes(x.startTime)<hourStart+60);const hourTasks=todaysTasks.filter(t=>t.dueTime&&timeToMinutes(t.dueTime)>=hourStart&&timeToMinutes(t.dueTime)<hourStart+60);const label=hour===0?'12 AM':hour<12?hour+' AM':hour===12?'12 PM':(hour-12)+' PM';return <div className="timetable-hour" key={hour} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();if(dragTaskId)placeTaskAt(dragTaskId,minutesToTime(hourStart));}}><div className="timetable-hour-label">{label}</div><div className="timetable-hour-content"><button className="timetable-open-slot" onClick={()=>openNewTaskAt(minutesToTime(hourStart))}>＋ Add at {label}</button>{hourBlocks.map(x=><div className="timetable-event fixed-event" key={x.id}><div><strong>{x.title}</strong><span>{displayTime(x.startTime)}–{displayTime(x.endTime)} · {x.repeat==='weekly'?'Weekly':'One-time'}</span></div><button title="Delete commitment" onClick={()=>deletePlannerBlock(x.id)}><X size={15}/></button></div>)}{hourTasks.map(t=><div className="timetable-event task-event" key={t.id} draggable onDragStart={()=>setDragTaskId(t.id)} onDragEnd={()=>setDragTaskId('')}><button className="timetable-event-main" onClick={()=>openEditTask(t)}><strong>{t.title}</strong><span>{displayTime(t.dueTime!)} · {t.durationMinutes||60} min</span></button><button title="Edit task" onClick={()=>openEditTask(t)}><Clock3 size={14}/></button></div>)}</div></div>})}</div></section>
+          {unscheduledTasks.length>0&&<section className="content-section"><div className="section-heading"><div><h2>Unscheduled tasks</h2><p>Drag a task onto an hour, or tap Set time.</p></div></div><div className="task-list">{unscheduledTasks.map(t=><div className="task-row" key={t.id} draggable onDragStart={()=>setDragTaskId(t.id)} onDragEnd={()=>setDragTaskId('')}><div className="task-main"><strong>{t.title}</strong><small><i className={'priority-dot '+t.priority.toLowerCase()}/>{t.priority} priority · {t.durationMinutes||60} min</small></div><button className="secondary-button" onClick={()=>openEditTask(t)}>Set time</button></div>)}</div></section>}
         </>}
         {tab==='tasks'&&<><div className="page-heading"><div><div className="eyebrow">STAY ON TOP OF IT</div><h1>Your tasks</h1><p>Everything you need to do, in one place.</p></div><button className="primary-button" onClick={()=>openNewTask(todayKey())}><Plus size={18}/> Add task</button></div><div className="filter-row">{(['All','Open','Completed'] as const).map(f=><button key={f} className={filter===f?'filter-pill selected':'filter-pill'} onClick={()=>setFilter(f)}>{f}{f==='All'&&<span>{tasks.length}</span>}</button>)}</div><TaskList tasks={visibleTasks} onToggle={toggleTask} onEdit={openEditTask} onDelete={deletePlannerTask} showDate emptyAction={()=>openNewTask(todayKey())}/></>}
         {tab==='habits'&&<><div className="page-heading"><div><div className="eyebrow">CONSISTENCY OVER PERFECTION</div><h1>Your habits</h1><p>Build routines that make your days better.</p></div><button className="primary-button" onClick={()=>setHabitOpen(true)}><Plus size={18}/> Add habit</button></div><div className="habit-date-note"><CalendarDays size={17}/> Check in for <strong>{prettyDate(selectedDate)}</strong><button className="text-button" onClick={()=>setSelectedDate(todayKey())}>Go to today</button></div><HabitList habits={habits} checkins={checkins} date={selectedDate} onToggle={toggleHabit} onDelete={deletePlannerHabit}/></>}
@@ -210,6 +230,7 @@ export default function App() {
       </div>
     </main>
     {taskOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setTaskOpen(false)}}><form className="modal-card" onSubmit={saveTask}><div className="modal-heading"><div><div className="eyebrow">{editing?'UPDATE TASK':'MAKE IT HAPPEN'}</div><h2>{editing?'Edit task':'New task'}</h2></div><button type="button" className="icon-button" onClick={()=>setTaskOpen(false)}><X size={19}/></button></div><label>Task name<input autoFocus required maxLength={120} placeholder="What do you need to do?" value={title} onChange={e=>setTitle(e.target.value)}/></label><label>Notes <span className="optional">Optional</span><textarea rows={3} placeholder="Add a little detail…" value={notes} onChange={e=>setNotes(e.target.value)}/></label><div className="form-two"><label>Due date<input type="date" value={dueDate} onChange={e=>setDueDate(e.target.value)} required/></label><label>Start time <span className="optional">Optional</span><input type="time" value={dueTime} onChange={e=>setDueTime(e.target.value)}/></label></div><label>Duration<select value={durationMinutes} onChange={e=>setDurationMinutes(Number(e.target.value))}><option value={15}>15 minutes</option><option value={30}>30 minutes</option><option value={45}>45 minutes</option><option value={60}>1 hour</option><option value={90}>1 hour 30 minutes</option><option value={120}>2 hours</option><option value={180}>3 hours</option></select></label><label>Priority<select value={priority} onChange={e=>setPriority(e.target.value as 'High'|'Medium'|'Low')}><option>Low</option><option>Medium</option><option>High</option></select></label>{taskError&&<div className="auth-error" role="alert">{taskError}</div>}<div className="modal-actions"><button type="button" className="secondary-button" onClick={()=>setTaskOpen(false)} disabled={savingTask}>Cancel</button><button className="primary-button" type="submit" disabled={savingTask}>{savingTask?'Saving…':editing?'Save changes':'Add task'}</button></div></form></div>}
+    {blockOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setBlockOpen(false)}}><form className="modal-card" onSubmit={saveBlock}><div className="modal-heading"><div><div className="eyebrow">PROTECT YOUR TIME</div><h2>New commitment</h2></div><button type="button" className="icon-button" onClick={()=>setBlockOpen(false)}><X size={19}/></button></div><label>Name<input autoFocus required maxLength={100} placeholder="e.g. College, Gym, Internship" value={blockTitle} onChange={e=>setBlockTitle(e.target.value)}/></label><div className="form-two"><label>Start<input type="time" required value={blockStart} onChange={e=>setBlockStart(e.target.value)}/></label><label>End<input type="time" required value={blockEnd} onChange={e=>setBlockEnd(e.target.value)}/></label></div><label>Repeat<select value={blockRepeat} onChange={e=>setBlockRepeat(e.target.value as 'weekly'|'once')}><option value="weekly">Every week</option><option value="once">Specific date only</option></select></label>{blockRepeat==='weekly'?<div className="block-day-picker"><span>Repeat on</span><div>{['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((day,i)=><button type="button" key={day} className={blockDays.includes(i)?'block-day active':'block-day'} onClick={()=>toggleBlockDay(i)}>{day}</button>)}</div></div>:<label>Date<input type="date" required value={blockDate} onChange={e=>setBlockDate(e.target.value)}/></label>}{blockError&&<div className="auth-error" role="alert">{blockError}</div>}<div className="modal-actions"><button type="button" className="secondary-button" onClick={()=>setBlockOpen(false)}>Cancel</button><button className="primary-button" type="submit">Save commitment</button></div></form></div>}
     {habitOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHabitOpen(false)}}><form className="modal-card" onSubmit={addHabit}><div className="modal-heading"><div><div className="eyebrow">BUILD A ROUTINE</div><h2>Add a habit</h2></div><button type="button" className="icon-button" onClick={()=>setHabitOpen(false)}><X size={19}/></button></div><label>Habit name<input autoFocus required maxLength={80} placeholder="e.g. Read for 20 minutes" value={habitName} onChange={e=>setHabitName(e.target.value)}/></label><div className="modal-actions"><button type="button" className="secondary-button" onClick={()=>setHabitOpen(false)}>Cancel</button><button className="primary-button" type="submit">Add habit</button></div></form></div>}
     <nav className="bottom-nav">{navItems.map(([id,label,Icon])=><button key={id} className={tab===id?'bottom-item active':'bottom-item'} onClick={()=>setTab(id)}><Icon size={20}/><span>{label}</span></button>)}</nav>
   </div>;
