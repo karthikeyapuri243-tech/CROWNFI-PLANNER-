@@ -105,6 +105,32 @@ export default function App() {
     if (savingTask) return;
     if (!user) { setTaskError('You are signed out. Please sign in again.'); return; }
     if (!title.trim()) { setTaskError('Please enter a task name.'); return; }
+    if (dueTime) {
+      const start = timeToMinutes(dueTime);
+      const finish = start + durationMinutes;
+      const matchingBlocks = blocks.filter(b =>
+        b.repeat === 'weekly'
+          ? b.days.includes(new Date(dueDate + 'T12:00:00').getDay())
+          : b.date === dueDate
+      );
+      const overlapsClass = matchingBlocks.some(b =>
+        start < timeToMinutes(b.endTime) && finish > timeToMinutes(b.startTime)
+      );
+      const overlapsTask = tasks.some(t =>
+        t.id !== editing?.id &&
+        !t.completed &&
+        t.dueDate === dueDate &&
+        !!t.dueTime &&
+        start < timeToMinutes(t.dueTime) + (t.durationMinutes || 60) &&
+        finish > timeToMinutes(t.dueTime)
+      );
+      if (overlapsClass || overlapsTask) {
+        setTaskError(overlapsClass
+          ? 'This time overlaps a class or commitment. Choose a free time.'
+          : 'This time overlaps another task. Choose a free time.');
+        return;
+      }
+    }
     setSavingTask(true);
     setTaskError('');
     try {
