@@ -516,3 +516,15 @@ body { letter-spacing:-.012em; }
 .habit-progress-track{height:5px;max-width:260px;border-radius:8px;background:var(--surface2);overflow:hidden}
 .habit-progress-track span{display:block;height:100%;border-radius:8px;background:var(--green);transition:width .2s}
 @media(max-width:640px){.habit-summary-grid{gap:8px}.habit-summary-grid .overview-card{padding:12px}.habit-summary-grid .overview-card strong{font-size:23px}.habit-summary-grid .overview-card>span:last-child{font-size:9px}.habit-row-expanded{flex-wrap:wrap}.habit-row-expanded .habit-info{flex:1 1 calc(100% - 55px);min-width:0}.habit-row-expanded .habit-measure-row{max-width:100%}.habit-row-expanded .habit-measure-row input{flex:1;width:70px}}
+
+
+/* Habit timer controls and rewards */
+.habit-timer-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:8px}
+.habit-timer-row>span{font:700 11px Manrope;color:var(--muted);font-variant-numeric:tabular-nums}
+.habit-timer-row button:disabled{opacity:.55;cursor:not-allowed}
+.habit-reward-card{display:grid;gap:8px}
+.habit-reward-card .stat-number{font-variant-numeric:tabular-nums}
+.habit-reward-progress{height:7px;border-radius:10px;background:var(--surface2);overflow:hidden}
+.habit-reward-progress span{display:block;height:100%;background:var(--green);border-radius:10px}
+.habit-error-banner{margin:10px 0;padding:10px 12px;border:1px solid rgba(198,93,82,.35);border-radius:10px;background:rgba(198,93,82,.08);color:#b94e44;font-size:11px;line-height:1.5}
+@media(max-width:640px){.habit-timer-row{gap:7px}.habit-timer-row>span{font-size:10px}.habit-timer-row button{min-height:34px;padding:0 9px;font-size:10px}}
