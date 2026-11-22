@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type CSSProperties, type FormEvent } from
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { auth } from './lib/firebase';
 import Auth from './components/Auth';
-import { createPlannerTask, updatePlannerTask, deletePlannerTask, subscribePlannerTasks, createPlannerBlock, updatePlannerBlock, deletePlannerBlock, subscribePlannerBlocks, createPlannerHabit, deletePlannerHabit, subscribePlannerHabits, setPlannerHabitCheckin, subscribePlannerCheckins } from './lib/plannerDb';
+import { createPlannerTask, createRecurringPlannerOccurrence, updatePlannerTask, deletePlannerTask, subscribePlannerTasks, createPlannerBlock, updatePlannerBlock, deletePlannerBlock, subscribePlannerBlocks, createPlannerHabit, deletePlannerHabit, subscribePlannerHabits, setPlannerHabitCheckin, subscribePlannerCheckins } from './lib/plannerDb';
 import { CalendarDays, CalendarRange, Check, CheckCircle2, ChevronLeft, ChevronRight, Circle, Clock3, Flame, LayoutDashboard, ListTodo, LogOut, Menu, Moon, Plus, Search, Sun, Target, Trash2, TrendingUp, X } from 'lucide-react';
 
 type Task = { id:string; userId:string; title:string; notes?:string; dueDate:string; dueTime?:string; durationMinutes?:number; priority:'High'|'Medium'|'Low'; repeat?:'none'|'daily'|'weekdays'|'weekly'; lastGeneratedDate?:string; completed:boolean; createdAt:string };
@@ -30,6 +30,7 @@ export default function App() {
   const [user,setUser] = useState<User|null>(null);
   const [authLoading,setAuthLoading] = useState(true);
   const [tasks,setTasks] = useState<Task[]>([]);
+  const [syncError,setSyncError] = useState('');
   const [clockNow,setClockNow] = useState(()=>new Date());
   const [habits,setHabits] = useState<Habit[]>([]);
   const [checkins,setCheckins] = useState<Checkin[]>([]);
@@ -82,7 +83,7 @@ export default function App() {
   useEffect(() => { localStorage.setItem('KRAM-schedule-start',scheduleStart); localStorage.setItem('KRAM-schedule-end',scheduleEnd); },[scheduleStart,scheduleEnd]);
   useEffect(() => {
     if(!user) return;
-    const a=subscribePlannerTasks(user.uid,setTasks);
+    const a=subscribePlannerTasks(user.uid,items=>{setTasks(items);setSyncError('');},()=>setSyncError('Tasks could not sync. Check your internet connection and refresh the planner.'));
     const b=subscribePlannerHabits(user.uid,setHabits);
     const c=subscribePlannerCheckins(user.uid,setCheckins);
     const d=subscribePlannerBlocks(user.uid,setBlocks);
@@ -166,9 +167,8 @@ export default function App() {
       const nextDate=nextRepeatDate(t.dueDate,t.repeat);
       if(t.lastGeneratedDate!==nextDate) {
         try {
-          await createPlannerTask(t.userId,{title:t.title,notes:t.notes||'',dueDate:nextDate,dueTime:t.dueTime||'',durationMinutes:t.durationMinutes||60,priority:t.priority,repeat:t.repeat,completed:false});
-          await updatePlannerTask(t.id,{lastGeneratedDate:nextDate});
-          setSmartMessage('Task completed. Next '+t.repeat+' task added for '+prettyDate(nextDate,{month:'short',day:'numeric'})+'.');
+          const created=await createRecurringPlannerOccurrence(t.id,t.userId,nextDate,{title:t.title,notes:t.notes||'',dueDate:nextDate,dueTime:t.dueTime||'',durationMinutes:t.durationMinutes||60,priority:t.priority,repeat:t.repeat,completed:false});
+          setSmartMessage(created?'Task completed. Next '+t.repeat+' task added for '+prettyDate(nextDate,{month:'short',day:'numeric'})+'.':'Task completed. The next occurrence already exists, so no duplicate was added.');
         } catch(error) {
           console.error('KRAM recurring task creation failed:',error);
           setSmartMessage('Task completed, but the next recurring task could not be created. Please try again.');
@@ -287,8 +287,8 @@ export default function App() {
       <div className="sidebar-bottom"><div className="user-chip"><div className="avatar">{(user.displayName||user.email||'U').charAt(0).toUpperCase()}</div><div className="user-details"><strong>{user.displayName||'My planner'}</strong><span>{user.email}</span></div><button className="icon-button" title="Sign out" onClick={()=>signOut(auth)}><LogOut size={17}/></button></div></div>
     </aside>
     <main className="main-area">
-      <header className="topbar"><button className="mobile-brand" onClick={()=>setMobileMenu(!mobileMenu)}><Menu size={20}/><b>KRAM</b></button><div className="breadcrumb">My workspace <span>/</span> <strong>{navItems.find(n=>n[0]===tab)?.[1]}</strong></div><div className="top-actions"><span className="sync-label"><span className="sync-dot"/> Synced</span><button className="icon-button theme-button" onClick={()=>setDark(!dark)} title="Toggle theme">{dark?<Sun size={18}/>:<Moon size={18}/>}</button><button className="icon-button mobile-logout" onClick={()=>signOut(auth)} title="Sign out"><LogOut size={18}/></button></div></header>
-      {mobileMenu&&<div className="mobile-menu">{navItems.map(([id,label,Icon])=><button key={id} onClick={()=>{setTab(id);setMobileMenu(false)}}><Icon size={18}/>{label}</button>)}</div>}
+      <header className="topbar"><button className="mobile-brand" onClick={()=>setMobileMenu(!mobileMenu)}><Menu size={20}/><b>KRAM</b></button><div className="breadcrumb">My workspace <span>/</span> <strong>{navItems.find(n=>n[0]===tab)?.[1]}</strong></div><div className="top-actions"><span className={syncError?"sync-label sync-error":"sync-label"}><span className="sync-dot"/>{syncError?"Sync issue":"Synced"}</span><button className="icon-button theme-button" onClick={()=>setDark(!dark)} title="Toggle theme">{dark?<Sun size={18}/>:<Moon size={18}/>}</button><button className="icon-button mobile-logout" onClick={()=>signOut(auth)} title="Sign out"><LogOut size={18}/></button></div></header>
+      {syncError&&<div className="sync-error-banner" role="alert">{syncError}</div>}{mobileMenu&&<div className="mobile-menu">{navItems.map(([id,label,Icon])=><button key={id} onClick={()=>{setTab(id);setMobileMenu(false)}}><Icon size={18}/>{label}</button>)}</div>}
       <div className="page-content page-transition" key={tab}>
         {tab==='today'&&<><div className="page-heading"><div><div className="eyebrow">YOUR DAY, YOUR PACE</div><h1>Make today count.</h1><p>{prettyDate(selectedDate)} <span className="muted-dot">·</span> One step at a time.</p></div><button className="primary-button" onClick={()=>openNewTask()}><Plus size={18}/> Add task</button></div>
           <div className="date-switch"><button className="icon-button" onClick={()=>{const d=new Date(selectedDate+'T12:00:00');d.setDate(d.getDate()-1);setSelectedDate(dateKey(d));}}><ChevronLeft size={18}/></button><button className="date-current" onClick={()=>setSelectedDate(todayKey())}><CalendarDays size={16}/>{selectedDate===todayKey()?'Today':prettyDate(selectedDate,{month:'short',day:'numeric',year:'numeric'})}</button><button className="icon-button" onClick={()=>{const d=new Date(selectedDate+'T12:00:00');d.setDate(d.getDate()+1);setSelectedDate(dateKey(d));}}><ChevronRight size={18}/></button></div>
