@@ -1,43 +1,48 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @variant dark (&:where(.dark, .dark *));
 
 :root {
-  --olive: #28634d;
-  --clay: #b66b55;
+  color-scheme: light;
+  --olive: #267052;
+  --clay: #b96d55;
   --sand: #edf2ee;
-  --paper: #f5f7f5;
-  --natborder: #e2e8e3;
-  --nattext: #17231d;
+  --paper: #f4f6f5;
+  --natborder: #e2e8e4;
+  --nattext: #18241e;
   --natmuted: #68766e;
   --cardbg: #ffffff;
   --headerbg: rgba(255,255,255,.88);
   --subtlebg: #f0f4f1;
-  --tabhover: #edf3ef;
+  --tabhover: #eaf1ec;
   --bentobg: #ffffff;
   --assistant-bg: rgba(255,255,255,.97);
   --dialog-bg: #ffffff;
+  --page-shadow: 0 18px 50px rgba(28, 54, 40, .055);
 }
+
 .dark {
-  --olive: #8fc4a8;
-  --clay: #e09a82;
-  --sand: #202a24;
-  --paper: #111814;
-  --natborder: #29372f;
+  color-scheme: dark;
+  --olive: #8bc6a7;
+  --clay: #e5a18a;
+  --sand: #202b25;
+  --paper: #0e1511;
+  --natborder: #27372e;
   --nattext: #edf4ef;
-  --natmuted: #a0afa5;
-  --cardbg: #18221c;
-  --headerbg: rgba(20,29,23,.9);
-  --subtlebg: #1b2820;
-  --tabhover: #24342a;
-  --bentobg: #18221c;
-  --assistant-bg: rgba(24,34,28,.97);
-  --dialog-bg: #18221c;
+  --natmuted: #9eaea4;
+  --cardbg: #151f19;
+  --headerbg: rgba(17,26,21,.88);
+  --subtlebg: #1a2820;
+  --tabhover: #22352a;
+  --bentobg: #151f19;
+  --assistant-bg: rgba(21,31,25,.97);
+  --dialog-bg: #18231c;
+  --page-shadow: 0 18px 50px rgba(0,0,0,.20);
 }
+
 @theme {
-  --font-serif: "Manrope", system-ui, sans-serif;
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-serif: "SF Pro Display", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --color-olive: var(--olive);
   --color-clay: var(--clay);
   --color-sand: var(--sand);
@@ -53,146 +58,218 @@
   --color-assistantbg: var(--assistant-bg);
   --color-dialogbg: var(--dialog-bg);
 }
+
 * { box-sizing: border-box; }
-html { background: var(--paper); }
+html, body, #root { min-height: 100%; width: 100%; }
+html { background: var(--paper); scroll-behavior: smooth; }
 body {
   margin: 0;
   background: var(--paper);
   color: var(--nattext);
   font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.55;
+  letter-spacing: -.012em;
   -webkit-font-smoothing: antialiased;
-  transition: background-color .2s ease, color .2s ease;
+  transition: background-color .22s ease, color .22s ease;
 }
 button, input, textarea, select { font: inherit; }
 button { -webkit-tap-highlight-color: transparent; }
-::selection { background: rgba(40,99,77,.18); }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--olive) 32%, transparent);
+  outline-offset: 2px;
+}
+::selection { background: color-mix(in srgb, var(--olive) 20%, transparent); }
 ::-webkit-scrollbar { width: 7px; height: 7px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(104,118,110,.28); border-radius: 20px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(104,118,110,.48); }
+::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--natmuted) 28%, transparent); border-radius: 20px; }
+::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--natmuted) 48%, transparent); }
 
-/* Persistent Apple-inspired sidebar */
-.crownfi-shell { width: 100%; }
+/* App frame */
+.crownfi-app { min-height: 100dvh; width: 100%; overflow-x: clip; background: var(--paper); color: var(--nattext); }
+.crownfi-shell { width: 100%; min-width: 0; align-items: stretch; }
+.crownfi-app > header {
+  min-height: 72px;
+  background: var(--headerbg);
+  border-color: var(--natborder);
+  box-shadow: 0 1px 0 rgba(20,40,28,.025);
+  backdrop-filter: saturate(180%) blur(18px);
+}
+.crownfi-app > header > div { height: 72px; padding-inline: clamp(18px, 3vw, 42px); gap: 18px; }
+#header-brand { gap: 11px; }
+#header-brand > div { width: 36px; height: 36px; border-radius: 12px; box-shadow: 0 5px 14px rgba(38,112,82,.18); }
+#header-brand h1 { font-family: var(--font-sans); font-size: 18px; font-style: normal; font-weight: 760; letter-spacing: -.7px; }
+#header-profile-actions { gap: 8px; }
+#header-profile-actions > button { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; }
+#btn-theme-toggle { background: var(--subtlebg); color: var(--nattext); border: 1px solid var(--natborder); }
+#btn-theme-toggle:hover { color: var(--olive); border-color: color-mix(in srgb, var(--olive) 35%, var(--natborder)); }
+#mojo-level-header, #perfect-days-streak-widget { border-radius: 14px; background: var(--cardbg); border-color: var(--natborder); box-shadow: 0 2px 8px rgba(20,40,28,.035); }
+
+/* Desktop sidebar */
 .crownfi-sidebar {
-  width: 248px;
-  min-width: 248px;
-  min-height: calc(100vh - 64px);
-  padding: 27px 17px 18px;
+  width: 252px;
+  min-width: 252px;
+  height: calc(100dvh - 72px);
+  min-height: calc(100dvh - 72px);
+  position: sticky;
+  top: 72px;
+  padding: 26px 16px 18px;
+  flex-direction: column;
   background: var(--cardbg);
   border-right: 1px solid var(--natborder);
-  flex-direction: column;
-  position: sticky;
-  top: 64px;
-  height: calc(100vh - 64px);
 }
-.crownfi-sidebar-brand { display:flex; align-items:center; gap:11px; padding: 0 10px 32px; }
-.crownfi-brand-mark { width:35px; height:35px; display:grid; place-items:center; color:white; background:#28634d; border-radius:12px; box-shadow:0 4px 12px rgba(40,99,77,.18); }
-.crownfi-brand-title { font:800 17px/1.1 "Manrope",sans-serif; letter-spacing:-.6px; color:var(--nattext); }
-.crownfi-brand-caption { margin-top:4px; color:var(--natmuted); font-size:8px; font-weight:700; letter-spacing:1.15px; }
-.crownfi-nav-label { padding: 0 12px 10px; color:var(--natmuted); font-size:9px; font-weight:800; letter-spacing:1.25px; }
-.crownfi-side-nav { display:flex; flex-direction:column; gap:5px; }
-.crownfi-side-link { width:100%; min-height:43px; display:flex; align-items:center; gap:12px; padding:0 13px; border:0; border-radius:11px; background:transparent; color:var(--natmuted); font-size:12px; font-weight:600; text-align:left; cursor:pointer; transition:background .18s ease,color .18s ease,transform .18s ease; }
-.crownfi-side-link svg { width:17px; height:17px; stroke-width:1.8; }
-.crownfi-side-link:hover { background:var(--subtlebg); color:var(--nattext); }
-.crownfi-side-link.active { background:rgba(40,99,77,.10); color:var(--olive); font-weight:700; }
-.dark .crownfi-side-link.active { background:rgba(143,196,168,.12); }
-.crownfi-tools-label { margin-top:30px; }
-.crownfi-sidebar-spacer { flex:1; min-height:30px; }
-.crownfi-sidebar-footer { display:flex; align-items:center; gap:10px; border-top:1px solid var(--natborder); padding:17px 7px 0; }
-.crownfi-footer-avatar { width:33px; height:33px; flex:0 0 33px; border-radius:50%; display:grid; place-items:center; background:#e5eee8; color:#28634d; font-weight:800; font-size:12px; }
-.dark .crownfi-footer-avatar { background:#294235; color:#b8dfc8; }
-.crownfi-footer-user { min-width:0; display:flex; flex-direction:column; gap:3px; }
-.crownfi-footer-user strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--nattext); font-size:11px; }
-.crownfi-footer-user span { color:var(--natmuted); font-size:10px; }
+.crownfi-sidebar-brand { display: flex; align-items: center; gap: 12px; padding: 2px 10px 34px; }
+.crownfi-brand-mark { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 13px; background: var(--olive); color: #fff; box-shadow: 0 6px 16px color-mix(in srgb, var(--olive) 22%, transparent); }
+.dark .crownfi-brand-mark { color: #102017; }
+.crownfi-brand-title { color: var(--nattext); font-size: 18px; font-weight: 800; letter-spacing: -.7px; line-height: 1.1; }
+.crownfi-brand-caption { margin-top: 5px; color: var(--natmuted); font-size: 8px; font-weight: 750; letter-spacing: 1.3px; }
+.crownfi-nav-label { padding: 0 12px 10px; color: var(--natmuted); font-size: 9px; font-weight: 800; letter-spacing: 1.35px; }
+.crownfi-side-nav { display: flex; flex-direction: column; gap: 5px; }
+.crownfi-side-link { width: 100%; min-height: 46px; display: flex; align-items: center; gap: 12px; padding: 0 13px; border: 0; border-radius: 13px; background: transparent; color: var(--natmuted); font-size: 12px; font-weight: 620; text-align: left; cursor: pointer; transition: background .18s ease, color .18s ease, transform .18s ease; }
+.crownfi-side-link svg { width: 18px; height: 18px; stroke-width: 1.85; }
+.crownfi-side-link:hover { background: var(--subtlebg); color: var(--nattext); transform: translateX(2px); }
+.crownfi-side-link.active { background: color-mix(in srgb, var(--olive) 11%, transparent); color: var(--olive); font-weight: 750; box-shadow: inset 3px 0 0 var(--olive); }
+.crownfi-tools-label { margin-top: 30px; }
+.crownfi-sidebar-spacer { flex: 1; min-height: 30px; }
+.crownfi-sidebar-footer { display: flex; align-items: center; gap: 10px; padding: 17px 7px 0; border-top: 1px solid var(--natborder); }
+.crownfi-footer-avatar { width: 35px; height: 35px; flex: 0 0 35px; display: grid; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--olive) 14%, var(--cardbg)); color: var(--olive); font-size: 12px; font-weight: 800; }
+.crownfi-footer-user { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.crownfi-footer-user strong { overflow: hidden; color: var(--nattext); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.crownfi-footer-user span { color: var(--natmuted); font-size: 10px; }
 
-/* Refined app chrome and content surfaces */
-.crownfi-app header { box-shadow: 0 1px 0 rgba(20,40,28,.025); }
-.crownfi-app header h1 { font-family:"Manrope",sans-serif; font-style:normal !important; font-weight:800; letter-spacing:-.7px; }
-.crownfi-app main { max-width: 1680px; margin:0 auto; }
-.crownfi-app main > * { min-width:0; }
-.crownfi-app [class*="rounded-3xl"] { border-radius:20px; }
-.crownfi-app [class*="shadow-"] { --tw-shadow-color: rgba(25,55,35,.045); }
-.crownfi-app input, .crownfi-app textarea, .crownfi-app select { border-color:var(--natborder); }
-.crownfi-app button:focus-visible, .crownfi-app input:focus-visible, .crownfi-app textarea:focus-visible, .crownfi-app select:focus-visible { outline:3px solid rgba(40,99,77,.22); outline-offset:2px; }
-#app-navigation { bottom:14px; }
-@media (min-width:1024px) {
-  #app-navigation { display:none !important; }
-  #nav-btn-restore { display:none !important; }
-  .crownfi-app main { padding-left: clamp(22px, 3vw, 48px); padding-right: clamp(22px, 3vw, 48px); }
+/* Main workspace and welcome hero */
+.crownfi-app main { width: 100%; max-width: 1720px; min-width: 0; margin: 0 auto; padding: 30px clamp(22px, 3vw, 48px) 44px; }
+.crownfi-app main > * { min-width: 0; }
+.crownfi-welcome {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 176px;
+  margin: 0 0 24px;
+  padding: clamp(24px, 3vw, 38px);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--olive) 15%, var(--natborder));
+  border-radius: 26px;
+  background: radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--olive) 13%, transparent), transparent 30%), linear-gradient(115deg, color-mix(in srgb, var(--olive) 7%, var(--cardbg)), var(--cardbg) 70%);
+  box-shadow: var(--page-shadow);
 }
-@media (max-width:1023px) {
-  .crownfi-shell { display:block; }
-  .crownfi-app main { padding-bottom:24px; }
-  .crownfi-app header > div { padding-left:14px; padding-right:14px; }
-  #mojo-streak-dual-panel { gap:6px; }
-  #perfect-days-streak-widget { display:none; }
-}
-@media (max-width:640px) {
-  .crownfi-app header { min-height:60px; }
-  .crownfi-app header > div { height:60px; }
-  #mojo-level-header { padding:6px 8px; }
-  #mojo-level-header > div:last-child { display:none; }
-  #header-profile-actions { gap:5px; }
-  .crownfi-app main { padding:14px 12px 24px; }
+.dark .crownfi-welcome { background: radial-gradient(circle at 88% 18%, rgba(139,198,167,.12), transparent 30%), linear-gradient(115deg, #19271f, #151f19 72%); }
+.crownfi-eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--olive); font-size: 9px; font-weight: 850; letter-spacing: 1.55px; }
+.crownfi-eyebrow::before { content: ''; width: 18px; height: 2px; border-radius: 2px; background: var(--olive); }
+.crownfi-welcome h2 { max-width: 760px; margin: 11px 0 7px; color: var(--nattext); font-family: var(--font-sans); font-size: clamp(27px, 3vw, 40px); font-weight: 760; letter-spacing: -1.8px; line-height: 1.08; }
+.crownfi-welcome p { margin: 0; color: var(--natmuted); font-size: 13px; }
+.crownfi-welcome-date { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; flex: 0 0 auto; padding: 13px 16px; border: 1px solid var(--natborder); border-radius: 15px; background: color-mix(in srgb, var(--cardbg) 82%, transparent); }
+.crownfi-welcome-date span { color: var(--natmuted); font-size: 8px; font-weight: 800; letter-spacing: 1.25px; }
+.crownfi-welcome-date strong { color: var(--nattext); font-size: 13px; font-weight: 750; }
+
+/* Onboarding is intentionally secondary to the actual workspace */
+#onboarding-guide-section { margin-bottom: 22px; }
+#onboarding-guide-section > div { border-radius: 20px; box-shadow: var(--page-shadow); }
+
+/* Workspace board and date strip */
+#dashboard-unified-board { overflow: hidden; border: 1px solid var(--natborder); border-radius: 24px; background: var(--cardbg); box-shadow: var(--page-shadow); }
+#horizontal-date-picker-strip { min-height: 72px; padding: 12px 22px; background: var(--cardbg); border-color: var(--natborder); }
+#horizontal-date-picker-strip button { transition: transform .16s ease, background .16s ease; }
+#horizontal-date-picker-strip button:active { transform: scale(.96); }
+#horizontal-date-picker-strip button[class*="w-11"] { width: 46px; height: 50px; border-radius: 13px; }
+#dashboard-unified-board > .border-b.bg-subtlebg { padding: 24px 28px; background: var(--subtlebg); border-color: var(--natborder); }
+#dashboard-unified-board > .border-b.bg-subtlebg h2 { font-family: var(--font-sans); font-size: 20px; font-style: normal; font-weight: 750; letter-spacing: -.7px; }
+#dashboard-unified-board > .border-b.bg-subtlebg p { max-width: 650px; line-height: 1.6; }
+
+/* Stats: three quiet, high-contrast cards */
+#dashboard-bento-stats { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; padding: 20px 24px; background: var(--paper); border-color: var(--natborder); }
+#dashboard-bento-stats > div { min-width: 0; min-height: 104px; padding: 18px; border: 1px solid var(--natborder); border-radius: 18px; background: var(--cardbg); box-shadow: 0 3px 12px rgba(20,40,28,.035); transition: transform .18s ease, box-shadow .18s ease; }
+#dashboard-bento-stats > div:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(20,40,28,.07); }
+#dashboard-bento-stats span { letter-spacing: .04em; }
+
+/* Task, habit and timeline surfaces */
+#dashboard-unified-board > .grid { align-items: start; background: var(--cardbg); }
+#dashboard-unified-board > .grid > div:first-child { padding: 22px; background: var(--paper); }
+#dashboard-unified-board > .grid > div:last-child { padding: 22px; background: var(--cardbg); }
+#tasks-section, #habits-section, #timeline-section, #inbox-todo-component, #visual-timetable-container { min-width: 0; }
+#inbox-todo-component > div, #habits-tracker-container { border-radius: 20px; border-color: var(--natborder); background: var(--cardbg); box-shadow: 0 4px 18px rgba(20,40,28,.035); }
+#inbox-todo-component h3, #habits-tracker-container h3, #visual-timetable-container h2 { font-family: var(--font-sans); font-style: normal; font-weight: 740; letter-spacing: -.35px; }
+#inbox-todo-component input, #inbox-todo-component textarea, #habits-tracker-container input, #habits-tracker-container select { min-height: 42px; border-radius: 12px; background: var(--paper); color: var(--nattext); }
+#inbox-list > div { border-radius: 12px; }
+#todays-habits-list > div { border-radius: 15px; }
+#visual-timetable-container { padding: 2px; }
+#visual-timetable-container [id*="timeline"] { min-width: 0; }
+#timeline-section { min-width: 0; }
+
+/* Inputs, dialogs and floating controls */
+.crownfi-app input, .crownfi-app textarea, .crownfi-app select { border-color: var(--natborder); color: var(--nattext); }
+.crownfi-app input::placeholder, .crownfi-app textarea::placeholder { color: var(--natmuted); opacity: .8; }
+.crownfi-app [role="dialog"] { border-radius: 22px; }
+#app-navigation { display: none; }
+#nav-btn-restore { display: none !important; }
+
+/* Tablet */
+@media (max-width: 1100px) {
+  .crownfi-sidebar { width: 220px; min-width: 220px; }
+  .crownfi-app main { padding-inline: 20px; }
+  #mojo-level-header { padding-inline: 10px; }
+  #perfect-days-streak-widget { display: none; }
 }
 
-/* Mobile-first usability pass: small phones, tablets and touch screens */
-.crownfi-app { min-height: 100dvh; width:100%; overflow-x:clip; }
-.crownfi-shell, .crownfi-app main { min-width:0; }
-.crownfi-app main { overflow-x:clip; }
-.crownfi-app button, .crownfi-app [role="button"] { touch-action:manipulation; }
-.crownfi-app input, .crownfi-app select, .crownfi-app textarea { min-width:0; max-width:100%; }
+/* Mobile and small tablets get a purpose-built bottom navigation */
+@media (max-width: 1023px) {
+  .crownfi-sidebar { display: none !important; }
+  .crownfi-shell { display: block; }
+  .crownfi-app main { max-width: none; padding: 20px 18px calc(112px + env(safe-area-inset-bottom)); }
+  #app-navigation { display: flex; position: fixed; bottom: max(10px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); width: min(560px, calc(100% - 24px)); max-width: 560px; padding: 7px; gap: 4px; border: 1px solid var(--natborder); border-radius: 19px; background: color-mix(in srgb, var(--cardbg) 92%, transparent); box-shadow: 0 12px 40px rgba(10,25,15,.18); backdrop-filter: blur(22px) saturate(170%); }
+  #app-navigation button { min-height: 48px; border-radius: 13px; }
+  #app-navigation button span { font-size: 9px; }
+  #nav-tab-desktop-workspace { display: none !important; }
+  #nav-btn-restore { display: none !important; }
+  #dashboard-unified-board > .grid > div:first-child, #dashboard-unified-board > .grid > div:last-child { padding: 18px; }
+}
 
-@media (max-width:1023px) {
-  .crownfi-sidebar { display:none !important; }
-  .crownfi-app main { width:100%; max-width:none; }
-  #app-navigation { bottom:max(10px, env(safe-area-inset-bottom)); width:calc(100% - 20px); max-width:560px; padding:7px; gap:3px; }
-  #app-navigation button { min-height:48px; }
-  .crownfi-app main { padding-bottom:calc(100px + env(safe-area-inset-bottom)); }
-  /* Prevent wide tables, timelines and cards from stretching the viewport. */
-  .crownfi-app main > *, .crownfi-app main section, .crownfi-app main article { min-width:0; max-width:100%; }
-  .crownfi-app main [class*="grid-cols-"] { min-width:0; }
+@media (max-width: 640px) {
+  .crownfi-app > header { min-height: 60px; }
+  .crownfi-app > header > div { height: 60px; padding-inline: 12px; gap: 5px; }
+  #header-brand { gap: 8px; }
+  #header-brand > div { width: 31px; height: 31px; flex: 0 0 31px; border-radius: 10px; }
+  #header-brand h1 { font-size: 15px; letter-spacing: -.55px; white-space: nowrap; }
+  #mojo-streak-dual-panel { margin-left: auto; gap: 0; }
+  #mojo-level-header { min-height: 36px; padding: 5px 7px; border-radius: 11px; }
+  #mojo-level-header > div:last-child { display: none; }
+  #header-profile-actions { gap: 1px; }
+  #header-profile-actions > button { width: 34px; height: 34px; padding: 6px; }
+  #header-profile-actions > .h-5, #user-header-profile > .h-5 { display: none; }
+  #user-header-profile { gap: 3px; }
+  #user-header-profile > span { display: none; }
+  #user-header-profile > div:first-child { width: 28px; height: 28px; }
+  .crownfi-app main { padding: 14px 12px calc(108px + env(safe-area-inset-bottom)); }
+  .crownfi-welcome { min-height: 0; flex-direction: column; align-items: flex-start; gap: 18px; margin-bottom: 15px; padding: 21px 19px; border-radius: 21px; }
+  .crownfi-welcome h2 { margin-top: 9px; font-size: clamp(25px, 7vw, 32px); letter-spacing: -1.2px; }
+  .crownfi-welcome p { max-width: 290px; font-size: 12px; }
+  .crownfi-welcome-date { align-items: flex-start; padding: 9px 12px; }
+  #onboarding-guide-section { margin-bottom: 15px; }
+  #dashboard-unified-board { border-radius: 19px; }
+  #horizontal-date-picker-strip { min-height: 62px; gap: 7px; padding: 9px 10px; }
+  #horizontal-date-picker-strip button[class*="w-11"] { width: 40px; height: 46px; }
+  #dashboard-unified-board > .border-b.bg-subtlebg { padding: 18px 16px; }
+  #dashboard-unified-board > .border-b.bg-subtlebg h2 { font-size: 18px; }
+  #dashboard-bento-stats { grid-template-columns: minmax(0,1fr); gap: 9px; padding: 12px; }
+  #dashboard-bento-stats > div { min-height: 78px; padding: 13px 14px; border-radius: 15px; }
+  #dashboard-unified-board > .grid > div:first-child, #dashboard-unified-board > .grid > div:last-child { padding: 12px; }
+  #inbox-todo-component > div, #habits-tracker-container { border-radius: 17px; padding: 15px; }
+  #app-navigation { width: calc(100% - 20px); padding: 6px; border-radius: 17px; }
+  #app-navigation button { min-width: 0; padding: 5px 2px; }
+  #app-navigation button span { font-size: 8px; }
+  .crownfi-app main h1 { font-size: clamp(20px, 6vw, 27px); }
+  .crownfi-app main table { display: block; max-width: 100%; overflow-x: auto; white-space: nowrap; }
+  .crownfi-app [role="dialog"] { width: calc(100vw - 20px); max-width: calc(100vw - 20px); max-height: calc(100dvh - 24px); overflow-y: auto; }
 }
-@media (max-width:640px) {
-  html, body, #root { width:100%; min-width:320px; overflow-x:clip; }
-  .crownfi-app header { position:sticky; top:0; }
-  .crownfi-app header > div { padding-left:10px; padding-right:10px; gap:5px; }
-  #header-brand { gap:7px; }
-  #header-brand h1 { font-size:15px; letter-spacing:-.45px; white-space:nowrap; }
-  #header-brand > div { width:29px; height:29px; flex:0 0 29px; }
-  #mojo-streak-dual-panel { margin-left:auto; gap:0; }
-  #mojo-level-header { padding:5px 7px; min-height:38px; }
-  #header-profile-actions { gap:1px; }
-  #header-profile-actions > button { padding:7px; }
-  #header-profile-actions > .h-5 { display:none; }
-  #user-header-profile { gap:4px; }
-  #user-header-profile > .h-5 { display:none; }
-  #user-header-profile #btn-logout { padding:7px; }
-  .crownfi-app main { padding:12px 10px calc(104px + env(safe-area-inset-bottom)); }
-  .crownfi-app main h1 { font-size:clamp(20px, 6vw, 27px); }
-  .crownfi-app main h2 { font-size:clamp(17px, 5vw, 21px); }
-  /* Convert multi-column content into readable single-column stacks. */
-  .crownfi-app main .grid { grid-template-columns:minmax(0,1fr) !important; }
-  .crownfi-app main [class*="grid-cols-"] { grid-template-columns:minmax(0,1fr) !important; }
-  .crownfi-app main [class*="col-span-"] { grid-column:1 / -1 !important; }
-  .crownfi-app main [class*="rounded-3xl"] { border-radius:16px; }
-  .crownfi-app main [class*="p-8"] { padding:16px; }
-  .crownfi-app main [class*="p-6"] { padding:14px; }
-  .crownfi-app main [class*="gap-8"] { gap:14px; }
-  .crownfi-app main [class*="gap-6"] { gap:12px; }
-  /* Make horizontal data views scroll inside their own card, not the page. */
-  .crownfi-app main table { display:block; max-width:100%; overflow-x:auto; white-space:nowrap; }
-  .crownfi-app [role="dialog"], .crownfi-app [data-radix-dialog-content] { width:calc(100vw - 20px); max-width:calc(100vw - 20px); max-height:calc(100dvh - 24px); overflow-y:auto; }
-  #app-navigation { border-radius:17px; }
-  #app-navigation button { min-width:0; padding-left:3px; padding-right:3px; font-size:9px; }
+
+@media (max-width: 380px) {
+  #header-brand h1 { font-size: 13px; }
+  #header-brand > div { width: 27px; height: 27px; flex-basis: 27px; }
+  #header-profile-actions > button { width: 30px; height: 30px; }
+  #app-navigation button span { font-size: 7px; }
 }
-@media (max-width:380px) {
-  #header-brand h1 { font-size:13px; }
-  #header-brand > div { width:26px; height:26px; flex-basis:26px; }
-  #mojo-level-header { padding:4px 5px; }
-  #header-profile-actions > button { padding:5px; }
-  #app-navigation button span { font-size:8px; }
-}
-@media (prefers-reduced-motion:reduce) {
-  .crownfi-app *, #app-navigation { scroll-behavior:auto !important; transition-duration:.01ms !important; animation-duration:.01ms !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
