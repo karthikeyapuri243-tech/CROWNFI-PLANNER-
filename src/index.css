@@ -481,3 +481,14 @@ body { letter-spacing:-.012em; }
 .fixed-event-span {
   box-sizing: border-box;
 }
+
+
+/* Task manager controls: searchable, filterable and sortable */
+.task-tools{display:flex;align-items:center;gap:10px;margin:0 0 14px;flex-wrap:wrap}
+.task-search{height:42px;min-width:220px;flex:1;display:flex;align-items:center;gap:9px;padding:0 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted)}
+.task-search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font-size:12px}
+.task-search input::placeholder{color:var(--muted)}
+.task-search button{border:0;background:transparent;color:var(--muted);display:grid;place-items:center;padding:4px}
+.task-tool-select{height:42px;display:flex;align-items:center;gap:7px;padding:0 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);font-size:11px}
+.task-tool-select select{border:0;outline:0;background:transparent;color:var(--text);font-size:11px;font-weight:650;max-width:100px}
+@media(max-width:640px){.task-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px}.task-search{grid-column:1/-1;min-width:0}.task-tool-select{justify-content:space-between;padding:0 9px}.task-tool-select select{max-width:90px}}
