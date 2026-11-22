@@ -19,7 +19,31 @@ const timeToMinutes = (value:string) => { const [h,m]=value.split(':').map(Numbe
 const minutesToTime = (value:number) => `${String(Math.floor(value/60)).padStart(2,'0')}:${String(value%60).padStart(2,'0')}`;
 const displayTime = (value:string) => new Date(`2000-01-01T${value}:00`).toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'});
 const priorityRank = (value:Task['priority']) => value==='High'?0:value==='Medium'?1:2;
-const playReminderAlert = (sound:boolean,vibration:boolean) => { if(vibration&&'vibrate' in navigator) navigator.vibrate([180,90,180]); if(sound){try{const AudioContextClass=window.AudioContext||(window as any).webkitAudioContext;if(AudioContextClass){const ctx=new AudioContextClass();[0,0.22].forEach(offset=>{const oscillator=ctx.createOscillator();const gain=ctx.createGain();oscillator.type='sine';oscillator.frequency.value=offset?880:660;gain.gain.setValueAtTime(0.0001,ctx.currentTime+offset);gain.gain.exponentialRampToValueAtTime(0.12,ctx.currentTime+offset+0.02);gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+offset+0.16);oscillator.connect(gain);gain.connect(ctx.destination);oscillator.start(ctx.currentTime+offset);oscillator.stop(ctx.currentTime+offset+0.18);});window.setTimeout(()=>void ctx.close(),700);}}catch(error){console.warn('KRAM alert sound unavailable',error);}};
+const playReminderAlert = (sound:boolean,vibration:boolean) => {
+  if (vibration && 'vibrate' in navigator) navigator.vibrate([180,90,180]);
+  if (!sound) return;
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    [0,0.22].forEach(offset => {
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      oscillator.type = 'sine';
+      oscillator.frequency.value = offset ? 880 : 660;
+      gain.gain.setValueAtTime(0.0001,ctx.currentTime+offset);
+      gain.gain.exponentialRampToValueAtTime(0.12,ctx.currentTime+offset+0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+offset+0.16);
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+      oscillator.start(ctx.currentTime+offset);
+      oscillator.stop(ctx.currentTime+offset+0.18);
+    });
+    window.setTimeout(()=>void ctx.close(),700);
+  } catch(error) {
+    console.warn('KRAM alert sound unavailable',error);
+  }
+};
 const isTaskOverdue = (task:Task, referenceDate=todayKey(), now=new Date()) => {
   if(task.completed)return false;
   if(task.dueDate<referenceDate)return true;
