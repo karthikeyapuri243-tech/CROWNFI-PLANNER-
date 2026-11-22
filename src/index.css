@@ -149,3 +149,43 @@ body { letter-spacing:-.012em; }
   .task-row, .habit-row { padding:13px 12px; min-height:69px; }
   .bottom-nav { height:72px; background:var(--bg); border-top-color:var(--line); }
 }
+
+
+/* KRAM — Your Next Step dashboard card */
+.next-step-card {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:22px 24px;
+  margin:0 0 32px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:var(--surface);
+  box-shadow:var(--shadow);
+}
+.next-step-copy { min-width:0; }
+.next-step-copy h2 {
+  margin:9px 0 5px;
+  font:700 21px Manrope;
+  letter-spacing:-.6px;
+  overflow-wrap:anywhere;
+}
+.next-step-copy p { margin:0; color:var(--muted); font-size:12px; }
+.next-step-copy p span { padding:0 4px; }
+.next-step-icon {
+  flex:0 0 48px;
+  width:48px;
+  height:48px;
+  display:grid;
+  place-items:center;
+  border-radius:16px;
+  background:var(--green-soft);
+  color:var(--green);
+}
+@media(max-width:640px) {
+  .next-step-card { padding:18px 16px; border-radius:17px; margin-bottom:26px; }
+  .next-step-copy h2 { font-size:18px; }
+  .next-step-copy p { font-size:11px; line-height:1.5; }
+  .next-step-icon { flex-basis:42px; width:42px; height:42px; border-radius:14px; }
+}
