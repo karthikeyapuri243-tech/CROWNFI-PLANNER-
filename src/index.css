@@ -492,3 +492,6 @@ body { letter-spacing:-.012em; }
 .task-tool-select{height:42px;display:flex;align-items:center;gap:7px;padding:0 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--muted);font-size:11px}
 .task-tool-select select{border:0;outline:0;background:transparent;color:var(--text);font-size:11px;font-weight:650;max-width:100px}
 @media(max-width:640px){.task-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px}.task-search{grid-column:1/-1;min-width:0}.task-tool-select{justify-content:space-between;padding:0 9px}.task-tool-select select{max-width:90px}}
+
+/* Six-item mobile navigation for the added Upcoming view */
+@media(max-width:640px){.bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr));padding-inline:3px}.bottom-item{font-size:7.5px;gap:3px}.bottom-item svg{width:18px;height:18px}}
