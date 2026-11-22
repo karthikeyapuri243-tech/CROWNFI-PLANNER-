@@ -26,6 +26,9 @@ export default function App() {
   const [taskOpen,setTaskOpen] = useState(false);
   const [taskError,setTaskError] = useState('');
   const [savingTask,setSavingTask] = useState(false);
+  const [quickTaskTitle,setQuickTaskTitle] = useState('');
+  const [quickTaskSaving,setQuickTaskSaving] = useState(false);
+  const [quickTaskError,setQuickTaskError] = useState('');
   const [habitOpen,setHabitOpen] = useState(false);
   const [editing,setEditing] = useState<Task|null>(null);
   const [title,setTitle] = useState('');
@@ -87,6 +90,21 @@ export default function App() {
     }
   };
   const toggleTask = async (t:Task) => updatePlannerTask(t.id,{completed:!t.completed});
+  const saveQuickTask = async (e:FormEvent) => {
+    e.preventDefault();
+    if (!user || !quickTaskTitle.trim() || quickTaskSaving) return;
+    setQuickTaskSaving(true);
+    setQuickTaskError('');
+    try {
+      await createPlannerTask(user.uid,{title:quickTaskTitle.trim(),notes:'',dueDate:selectedDate,dueTime:'',priority:'Medium',completed:false});
+      setQuickTaskTitle('');
+    } catch (err) {
+      console.error('KRAM quick task save failed:',err);
+      setQuickTaskError('Could not add task. Please try again.');
+    } finally {
+      setQuickTaskSaving(false);
+    }
+  };
   const addHabit = async (e:React.FormEvent) => {e.preventDefault();if(!user||!habitName.trim())return;await createPlannerHabit(user.uid,habitName.trim());setHabitName('');setHabitOpen(false);};
   const toggleHabit = async (h:Habit) => {const existing=checkins.find(c=>c.habitId===h.id&&c.date===selectedDate);await setPlannerHabitCheckin(user!.uid,h.id,selectedDate,!existing?.completed);};
 
@@ -109,6 +127,7 @@ export default function App() {
       <div className="page-content page-transition" key={tab}>
         {tab==='today'&&<><div className="page-heading"><div><div className="eyebrow">YOUR DAY, YOUR PACE</div><h1>Make today count.</h1><p>{prettyDate(selectedDate)} <span className="muted-dot">·</span> One step at a time.</p></div><button className="primary-button" onClick={()=>openNewTask()}><Plus size={18}/> Add task</button></div>
           <div className="date-switch"><button className="icon-button" onClick={()=>{const d=new Date(selectedDate+'T12:00:00');d.setDate(d.getDate()-1);setSelectedDate(dateKey(d));}}><ChevronLeft size={18}/></button><button className="date-current" onClick={()=>setSelectedDate(todayKey())}><CalendarDays size={16}/>{selectedDate===todayKey()?'Today':prettyDate(selectedDate,{month:'short',day:'numeric',year:'numeric'})}</button><button className="icon-button" onClick={()=>{const d=new Date(selectedDate+'T12:00:00');d.setDate(d.getDate()+1);setSelectedDate(dateKey(d));}}><ChevronRight size={18}/></button></div>
+          <form className="quick-add-task" onSubmit={saveQuickTask}><Plus size={18}/><input aria-label="Quick add task" maxLength={120} placeholder="Add a task and press Enter…" value={quickTaskTitle} onChange={e=>setQuickTaskTitle(e.target.value)}/><button className="quick-add-submit" type="submit" disabled={!quickTaskTitle.trim()||quickTaskSaving}>{quickTaskSaving?'Adding…':'Add task'}</button></form>{quickTaskError&&<p className="quick-add-error" role="alert">{quickTaskError}</p>}
           <section className="overview-grid"><div className="overview-card progress-card"><div className="card-topline"><span>DAILY PROGRESS</span><TrendingUp size={17}/></div><div className="progress-main"><div><strong>{completion}%</strong><p>{doneCount} of {todaysTasks.length} tasks completed</p></div><div className="ring" style={{'--progress':completion} as CSSProperties}><div>{completion}%</div></div></div><div className="progress-track"><span style={{width:completion+'%'}}/></div></div><div className="overview-card"><div className="card-topline"><span>TASKS LEFT</span><ListTodo size={17}/></div><strong className="stat-number">{Math.max(0,todaysTasks.length-doneCount)}</strong><p className="stat-caption">A clear next step is all you need.</p></div><div className="overview-card"><div className="card-topline"><span>HABITS TODAY</span><Flame size={17}/></div><strong className="stat-number">{todayCheckins}<em> / {habits.length}</em></strong><p className="stat-caption">Small actions build consistency.</p></div></section>
           <section className="next-step-card">
             <div className="next-step-copy">
