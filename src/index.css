@@ -444,3 +444,16 @@ body { letter-spacing:-.012em; }
   .task-event.completed .timetable-event-main strong{color:#aeb9b0!important}
 }
 @media(max-width:640px){.timeline-legend{gap:8px 12px;padding:10px 11px;font-size:9px}.timeline-type-tag{font-size:7px!important}.fixed-event-span strong{font-size:11px}}
+
+/* Theme-toggle support for timeline category colours */
+.dark .fixed-event-span{background:#172f49;border-color:#315c84;border-left-color:#68a9ed;color:#e3efff}
+.dark .fixed-event-span strong{color:#e3efff!important}
+.dark .fixed-event-span span:not(.timeline-type-tag){color:#b2c9e2!important}
+.dark .class-type-tag{background:rgba(104,169,237,.18);color:#9ccaff!important}
+.dark .task-event{background:#382d1c;border-color:#6b5129;border-left-color:#e0ad55}
+.dark .task-event .timetable-event-main strong{color:#ffdfa7}
+.dark .task-event .timetable-event-main>span:not(.timeline-type-tag){color:#d8bd91}
+.dark .task-event .timetable-complete{background:#47371f;border-color:#d09a42;color:#ffd48c}
+.dark .task-type-tag{background:rgba(224,173,85,.18);color:#ffd48c!important}
+.dark .task-event.completed{background:#262c28;border-color:#414b43;border-left-color:#78877a}
+.dark .task-event.completed .timetable-event-main strong{color:#aeb9b0!important}
