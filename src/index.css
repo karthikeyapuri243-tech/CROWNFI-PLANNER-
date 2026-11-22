@@ -474,3 +474,10 @@ body { letter-spacing:-.012em; }
  .task-event-span .timetable-event-main>span:not(.timeline-type-tag){font-size:9px}
  .task-event-span .timetable-event-actions button{width:23px;height:23px}
 }
+
+
+/* Keep timeline event padding inside its calculated duration height */
+.task-event-span,
+.fixed-event-span {
+  box-sizing: border-box;
+}
