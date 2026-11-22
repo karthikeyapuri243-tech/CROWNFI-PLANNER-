@@ -24,6 +24,8 @@ export default function App() {
   const [selectedDate,setSelectedDate] = useState(todayKey());
   const [dark,setDark] = useState(() => localStorage.getItem('crownfi-theme') === 'dark');
   const [taskOpen,setTaskOpen] = useState(false);
+  const [taskError,setTaskError] = useState('');
+  const [savingTask,setSavingTask] = useState(false);
   const [habitOpen,setHabitOpen] = useState(false);
   const [editing,setEditing] = useState<Task|null>(null);
   const [title,setTitle] = useState('');
@@ -54,13 +56,27 @@ export default function App() {
   const todayCheckins = habits.filter(h=>checkins.some(c=>c.habitId===h.id&&c.date===selectedDate&&c.completed)).length;
   const week = useMemo(()=>Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-6+i);const key=dateKey(d);const day=tasks.filter(t=>t.dueDate===key);return {key,label:d.toLocaleDateString('en-IN',{weekday:'short'}),total:day.length,done:day.filter(t=>t.completed).length};}),[tasks]);
 
-  const openNewTask = (date=selectedDate) => {setEditing(null);setTitle('');setNotes('');setDueDate(date);setDueTime('');setPriority('Medium');setTaskOpen(true);};
-  const openEditTask = (t:Task) => {setEditing(t);setTitle(t.title);setNotes(t.notes||'');setDueDate(t.dueDate);setDueTime(t.dueTime||'');setPriority(t.priority);setTaskOpen(true);};
+  const openNewTask = (date=selectedDate) => {setEditing(null);setTitle('');setNotes('');setDueDate(date);setDueTime('');setPriority('Medium');setTaskError('');setTaskOpen(true);};
+  const openEditTask = (t:Task) => {setEditing(t);setTitle(t.title);setNotes(t.notes||'');setDueDate(t.dueDate);setDueTime(t.dueTime||'');setPriority(t.priority);setTaskError('');setTaskOpen(true);};
   const saveTask = async (e:FormEvent) => {
-    e.preventDefault(); if(!user||!title.trim()) return;
-    const payload={title:title.trim(),notes:notes.trim(),dueDate,dueTime,priority,completed:editing?.completed||false};
-    if(editing) await updatePlannerTask(editing.id,payload); else await createPlannerTask(user.uid,payload);
-    setTaskOpen(false);
+    e.preventDefault();
+    if (savingTask) return;
+    if (!user) { setTaskError('You are signed out. Please sign in again.'); return; }
+    if (!title.trim()) { setTaskError('Please enter a task name.'); return; }
+    setSavingTask(true);
+    setTaskError('');
+    try {
+      const payload={title:title.trim(),notes:notes.trim(),dueDate,dueTime,priority,completed:editing?.completed||false};
+      if(editing) await updatePlannerTask(editing.id,payload);
+      else await createPlannerTask(user.uid,payload);
+      setTaskOpen(false);
+    } catch (err) {
+      console.error('Crownfi task save failed:', err);
+      const message = err instanceof Error ? err.message : String(err);
+      setTaskError('Could not save task. ' + message);
+    } finally {
+      setSavingTask(false);
+    }
   };
   const toggleTask = async (t:Task) => updatePlannerTask(t.id,{completed:!t.completed});
   const addHabit = async (e:React.FormEvent) => {e.preventDefault();if(!user||!habitName.trim())return;await createPlannerHabit(user.uid,habitName.trim());setHabitName('');setHabitOpen(false);};
@@ -94,7 +110,7 @@ export default function App() {
         {tab==='progress'&&<><div className="page-heading"><div><div className="eyebrow">NOTICE YOUR MOMENTUM</div><h1>Your progress</h1><p>Look back, learn, and keep moving forward.</p></div></div><section className="overview-grid progress-overview"><div className="overview-card"><div className="card-topline"><span>TOTAL TASKS DONE</span><CheckCircle2 size={17}/></div><strong className="stat-number">{tasks.filter(t=>t.completed).length}</strong><p className="stat-caption">Every completed task counts.</p></div><div className="overview-card"><div className="card-topline"><span>ACTIVE HABITS</span><Target size={17}/></div><strong className="stat-number">{habits.length}</strong><p className="stat-caption">Routines you're building.</p></div><div className="overview-card"><div className="card-topline"><span>HABIT CHECK-INS</span><Flame size={17}/></div><strong className="stat-number">{checkins.filter(c=>c.completed).length}</strong><p className="stat-caption">Small wins, added up.</p></div></section><section className="content-section chart-section"><div className="section-heading"><div><h2>Last 7 days</h2><p>Tasks completed each day.</p></div></div><div className="weekly-chart">{week.map(d=><div className="chart-column" key={d.key}><div className="chart-value">{d.done}/{d.total}</div><div className="chart-bar-area"><div className="chart-bar" style={{height:(d.total?Math.max(6,d.done/d.total*100):0)+'%'}}/></div><span>{d.label}</span></div>)}</div></section></>}
       </div>
     </main>
-    {taskOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setTaskOpen(false)}}><form className="modal-card" onSubmit={saveTask}><div className="modal-heading"><div><div className="eyebrow">{editing?'UPDATE TASK':'MAKE IT HAPPEN'}</div><h2>{editing?'Edit task':'New task'}</h2></div><button type="button" className="icon-button" onClick={()=>setTaskOpen(false)}><X size={19}/></button></div><label>Task name<input autoFocus required maxLength={120} placeholder="What do you need to do?" value={title} onChange={e=>setTitle(e.target.value)}/></label><label>Notes <span className="optional">Optional</span><textarea rows={3} placeholder="Add a little detail…" value={notes} onChange={e=>setNotes(e.target.value)}/></label><div className="form-two"><label>Due date<input type="date" value={dueDate} onChange={e=>setDueDate(e.target.value)} required/></label><label>Time <span className="optional">Optional</span><input type="time" value={dueTime} onChange={e=>setDueTime(e.target.value)}/></label></div><label>Priority<select value={priority} onChange={e=>setPriority(e.target.value as 'High'|'Medium'|'Low')}><option>Low</option><option>Medium</option><option>High</option></select></label><div className="modal-actions"><button type="button" className="secondary-button" onClick={()=>setTaskOpen(false)}>Cancel</button><button className="primary-button" type="submit">{editing?'Save changes':'Add task'}</button></div></form></div>}
+    {taskOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setTaskOpen(false)}}><form className="modal-card" onSubmit={saveTask}><div className="modal-heading"><div><div className="eyebrow">{editing?'UPDATE TASK':'MAKE IT HAPPEN'}</div><h2>{editing?'Edit task':'New task'}</h2></div><button type="button" className="icon-button" onClick={()=>setTaskOpen(false)}><X size={19}/></button></div><label>Task name<input autoFocus required maxLength={120} placeholder="What do you need to do?" value={title} onChange={e=>setTitle(e.target.value)}/></label><label>Notes <span className="optional">Optional</span><textarea rows={3} placeholder="Add a little detail…" value={notes} onChange={e=>setNotes(e.target.value)}/></label><div className="form-two"><label>Due date<input type="date" value={dueDate} onChange={e=>setDueDate(e.target.value)} required/></label><label>Time <span className="optional">Optional</span><input type="time" value={dueTime} onChange={e=>setDueTime(e.target.value)}/></label></div><label>Priority<select value={priority} onChange={e=>setPriority(e.target.value as 'High'|'Medium'|'Low')}><option>Low</option><option>Medium</option><option>High</option></select></label>{taskError&&<div className="auth-error" role="alert">{taskError}</div>}<div className="modal-actions"><button type="button" className="secondary-button" onClick={()=>setTaskOpen(false)} disabled={savingTask}>Cancel</button><button className="primary-button" type="submit" disabled={savingTask}>{savingTask?'Saving…':editing?'Save changes':'Add task'}</button></div></form></div>}
     {habitOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHabitOpen(false)}}><form className="modal-card" onSubmit={addHabit}><div className="modal-heading"><div><div className="eyebrow">BUILD A ROUTINE</div><h2>Add a habit</h2></div><button type="button" className="icon-button" onClick={()=>setHabitOpen(false)}><X size={19}/></button></div><label>Habit name<input autoFocus required maxLength={80} placeholder="e.g. Read for 20 minutes" value={habitName} onChange={e=>setHabitName(e.target.value)}/></label><div className="modal-actions"><button type="button" className="secondary-button" onClick={()=>setHabitOpen(false)}>Cancel</button><button className="primary-button" type="submit">Add habit</button></div></form></div>}
     <nav className="bottom-nav">{navItems.map(([id,label,Icon])=><button key={id} className={tab===id?'bottom-item active':'bottom-item'} onClick={()=>setTab(id)}><Icon size={20}/><span>{label}</span></button>)}</nav>
   </div>;
