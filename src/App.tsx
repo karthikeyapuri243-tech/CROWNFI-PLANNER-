@@ -22,7 +22,7 @@ export default function App() {
   const [checkins,setCheckins] = useState<Checkin[]>([]);
   const [tab,setTab] = useState<Tab>('today');
   const [selectedDate,setSelectedDate] = useState(todayKey());
-  const [dark,setDark] = useState(() => localStorage.getItem('crownfi-theme') === 'dark');
+  const [dark,setDark] = useState(() => localStorage.getItem('KRAM-theme') === 'dark');
   const [taskOpen,setTaskOpen] = useState(false);
   const [taskError,setTaskError] = useState('');
   const [savingTask,setSavingTask] = useState(false);
@@ -40,7 +40,7 @@ export default function App() {
   useEffect(() => onAuthStateChanged(auth, u => { setUser(u); setAuthLoading(false); }),[]);
   useEffect(() => {
     document.documentElement.classList.toggle('dark',dark);
-    localStorage.setItem('crownfi-theme',dark?'dark':'light');
+    localStorage.setItem('KRAM-theme',dark?'dark':'light');
   },[dark]);
   useEffect(() => {
     if(!user) return;
@@ -71,7 +71,7 @@ export default function App() {
       else await createPlannerTask(user.uid,payload);
       setTaskOpen(false);
     } catch (err) {
-      console.error('Crownfi task save failed:', err);
+      console.error('KRAM task save failed:', err);
       const message = err instanceof Error ? err.message : String(err);
       setTaskError('Could not save task. ' + message);
     } finally {
@@ -90,13 +90,13 @@ export default function App() {
 
   return <div className="app-shell">
     <aside className="sidebar">
-      <div className="brand"><div className="brand-icon">c</div><div><strong>crownfi</strong><span>PERSONAL PLANNER</span></div></div>
+      <div className="brand"><div className="brand-icon">c</div><div><strong>KRAM</strong><span>PERSONAL PLANNER</span></div></div>
       <div className="workspace-label">WORKSPACE</div>
       <nav>{navItems.map(([id,label,Icon])=><button key={id} className={tab===id?'nav-item active':'nav-item'} onClick={()=>setTab(id)}><Icon size={19}/><span>{label}</span>{id==='tasks'&&<small>{tasks.filter(t=>!t.completed).length}</small>}</button>)}</nav>
       <div className="sidebar-bottom"><div className="user-chip"><div className="avatar">{(user.displayName||user.email||'U').charAt(0).toUpperCase()}</div><div className="user-details"><strong>{user.displayName||'My planner'}</strong><span>{user.email}</span></div><button className="icon-button" title="Sign out" onClick={()=>signOut(auth)}><LogOut size={17}/></button></div></div>
     </aside>
     <main className="main-area">
-      <header className="topbar"><button className="mobile-brand" onClick={()=>setMobileMenu(!mobileMenu)}><Menu size={20}/><b>crownfi</b></button><div className="breadcrumb">My workspace <span>/</span> <strong>{navItems.find(n=>n[0]===tab)?.[1]}</strong></div><div className="top-actions"><span className="sync-label"><span className="sync-dot"/> Synced</span><button className="icon-button theme-button" onClick={()=>setDark(!dark)} title="Toggle theme">{dark?<Sun size={18}/>:<Moon size={18}/>}</button><button className="icon-button mobile-logout" onClick={()=>signOut(auth)} title="Sign out"><LogOut size={18}/></button></div></header>
+      <header className="topbar"><button className="mobile-brand" onClick={()=>setMobileMenu(!mobileMenu)}><Menu size={20}/><b>KRAM</b></button><div className="breadcrumb">My workspace <span>/</span> <strong>{navItems.find(n=>n[0]===tab)?.[1]}</strong></div><div className="top-actions"><span className="sync-label"><span className="sync-dot"/> Synced</span><button className="icon-button theme-button" onClick={()=>setDark(!dark)} title="Toggle theme">{dark?<Sun size={18}/>:<Moon size={18}/>}</button><button className="icon-button mobile-logout" onClick={()=>signOut(auth)} title="Sign out"><LogOut size={18}/></button></div></header>
       {mobileMenu&&<div className="mobile-menu">{navItems.map(([id,label,Icon])=><button key={id} onClick={()=>{setTab(id);setMobileMenu(false)}}><Icon size={18}/>{label}</button>)}</div>}
       <div className="page-content page-transition" key={tab}>
         {tab==='today'&&<><div className="page-heading"><div><div className="eyebrow">YOUR DAY, YOUR PACE</div><h1>Make today count.</h1><p>{prettyDate(selectedDate)} <span className="muted-dot">·</span> One step at a time.</p></div><button className="primary-button" onClick={()=>openNewTask()}><Plus size={18}/> Add task</button></div>
