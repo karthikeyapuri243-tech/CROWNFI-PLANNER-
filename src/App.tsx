@@ -169,14 +169,32 @@ export default function App() {
   const scheduleTasks=async()=>{
     if(!user||scheduling)return;
     const pending=todaysTasks.filter(t=>!t.completed&&!t.dueTime).sort((x,y)=>priorityRank(x.priority)-priorityRank(y.priority)||x.createdAt.localeCompare(y.createdAt));
-    if(!pending.length){setSmartMessage('All unfinished tasks already have a time.');return;}
-    const occupied=[...activeBlocks.map(x=>({start:timeToMinutes(x.startTime),end:timeToMinutes(x.endTime)})),...todaysTasks.filter(t=>!!t.dueTime).map(t=>({start:timeToMinutes(t.dueTime!),end:timeToMinutes(t.dueTime!)+(t.durationMinutes||60)}))];
+    if(!pending.length){setSmartMessage('No unscheduled tasks for this date. Add a task without a start time first.');return;}
+    const dayStart=timeToMinutes(scheduleStart);
+    const dayEnd=timeToMinutes(scheduleEnd);
+    if(dayEnd<=dayStart){setSmartMessage('Your scheduling end time must be later than the start time.');return;}
+    const occupied=[
+      ...activeBlocks.map(x=>({start:timeToMinutes(x.startTime),end:timeToMinutes(x.endTime)})),
+      ...todaysTasks.filter(t=>!!t.dueTime).map(t=>({start:timeToMinutes(t.dueTime!),end:timeToMinutes(t.dueTime!)+(t.durationMinutes||60)}))
+    ].sort((a,b)=>a.start-b.start);
     const planned:{task:Task;start:number}[]=[];
-    for(const task of pending){let candidate=0;const duration=task.durationMinutes||60;while(candidate+duration<=1440){const conflict=[...occupied,...planned.map(p=>({start:p.start,end:p.start+(p.task.durationMinutes||60)}))].find(slot=>candidate<slot.end&&candidate+duration>slot.start);if(conflict){candidate=conflict.end;continue;}planned.push({task,start:candidate});break;}}
-    if(!planned.length){setSmartMessage('No free slots remain in this 24-hour timetable.');return;}
+    for(const task of pending){
+      const duration=task.durationMinutes||60;
+      let candidate=dayStart;
+      const busy=[...occupied,...planned.map(p=>({start:p.start,end:p.start+(p.task.durationMinutes||60)}))].sort((a,b)=>a.start-b.start);
+      for(const slot of busy){
+        if(candidate+duration<=slot.start)break;
+        if(candidate<slot.end&&candidate+duration>slot.start)candidate=slot.end;
+      }
+      if(candidate+duration<=dayEnd)planned.push({task,start:candidate});
+    }
+    if(!planned.length){setSmartMessage('No free time available between '+displayTime(scheduleStart)+' and '+displayTime(scheduleEnd)+'.');return;}
     setScheduling(true);setSmartMessage('');
-    try{for(const item of planned)await updatePlannerTask(item.task.id,{dueTime:minutesToTime(item.start),durationMinutes:item.task.durationMinutes||60});setSmartMessage(planned.length+' task(s) placed in available time.');}
-    catch(error){console.error(error);setSmartMessage('Could not save the complete plan. Please try again.');}
+    try{
+      for(const item of planned)await updatePlannerTask(item.task.id,{dueTime:minutesToTime(item.start),durationMinutes:item.task.durationMinutes||60});
+      const remaining=pending.length-planned.length;
+      setSmartMessage(planned.length+' task(s) scheduled'+(remaining?'. '+remaining+' task(s) did not fit in your available time.':' successfully.'));
+    }catch(error){console.error(error);setSmartMessage('Some tasks could not be saved. Please check your connection and try again.');}
     finally{setScheduling(false);}
   };
   const scheduledTasks=todaysTasks.filter(t=>!!t.dueTime).sort((a,b)=>(a.dueTime||'').localeCompare(b.dueTime||''));
