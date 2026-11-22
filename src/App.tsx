@@ -114,8 +114,15 @@ export default function App() {
             <div className="next-step-copy">
               <span className="eyebrow">YOUR NEXT STEP</span>
               {nextTask ? <>
-                <h2>{nextTask.title}</h2>
-                <p>{nextTask.dueTime ? `Scheduled for ${nextTask.dueTime}` : 'Whenever you are ready'} <span>·</span> {nextTask.priority} priority</p>
+                <h2>{nextTask.title.trim() || 'Untitled task'}</h2>
+                <p className="next-step-meta">
+                  {nextTask.dueTime ? `Scheduled for ${nextTask.dueTime}` : 'Whenever you are ready'}
+                  <span>·</span>
+                  <span className={`priority-label priority-${nextTask.priority.toLowerCase()}`}>{nextTask.priority} priority</span>
+                </p>
+                <button className="next-step-complete" onClick={() => toggleTask(nextTask)}>
+                  <Check size={15}/> Mark as complete
+                </button>
               </> : <>
                 <h2>You're all caught up.</h2>
                 <p>No unfinished tasks for this day. Enjoy the breathing room.</p>
