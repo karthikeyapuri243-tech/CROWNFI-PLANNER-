@@ -12,3 +12,55 @@
 /* Sign-in experience */
 .auth-page{min-height:100dvh;display:grid;grid-template-columns:minmax(280px,.9fr) 1.1fr;background:var(--surface)}.auth-aside{background:#172c21;color:#f3f7f3;padding:42px clamp(28px,6vw,90px);display:flex;flex-direction:column;justify-content:space-between;min-height:100dvh}.auth-brand{display:flex;align-items:center;gap:11px;font:800 21px Manrope;letter-spacing:-.7px}.auth-brand .brand-icon{background:#d7e9dc;color:#1c5437}.auth-message{max-width:410px;margin:auto 0}.auth-message .eyebrow{color:#a7c1ae}.auth-message h1{font:800 clamp(36px,4vw,58px)/1.12 Manrope;letter-spacing:-2.5px;margin:18px 0}.auth-message h1 i{font-style:normal;color:#a8d2b6}.auth-message>p{color:#c2d0c5;font-size:14px;line-height:1.8;max-width:340px}.auth-benefits{display:grid;gap:16px;margin-top:42px;color:#e0ebe2;font-size:12px}.auth-benefits span{display:flex;align-items:center;gap:10px}.auth-benefits svg{color:#a8d2b6}.auth-aside-foot{font-size:9px;letter-spacing:1.7px;color:#9eb5a4}.auth-main{display:grid;place-items:center;padding:35px 24px}.auth-form-wrap{width:min(100%,390px)}.auth-form-wrap>.eyebrow{color:var(--green)}.auth-form-wrap h2{font:800 30px Manrope;letter-spacing:-1.1px;margin:10px 0 5px}.auth-subtitle{font-size:12px;color:var(--muted);margin:0 0 25px}.auth-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line);margin-bottom:21px}.auth-tabs button{border:0;background:transparent;padding:12px 4px;color:var(--muted);font-size:12px;font-weight:600;border-bottom:2px solid transparent}.auth-tabs button.selected{color:var(--green);border-color:var(--green)}.auth-form{display:grid;gap:15px}.auth-form label{font-size:11px;font-weight:700;display:grid;gap:7px}.auth-form input{width:100%;height:43px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--text);padding:0 12px;font-size:12px;outline:none}.auth-form input:focus{border-color:var(--green)}.auth-input{position:relative;display:flex;align-items:center}.auth-input svg{position:absolute;left:12px;color:var(--muted)}.auth-input input{padding-left:39px}.auth-submit{width:100%;margin-top:3px;height:45px}.auth-error{background:#fff0ed;color:#a43d30;border:1px solid #f1d0c9;padding:10px 12px;border-radius:8px;font-size:11px}.auth-divider{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:10px;margin:21px 0}.auth-divider span{height:1px;background:var(--line);flex:1}.google-button{height:44px;width:100%;border:1px solid var(--line);border-radius:9px;background:var(--surface);display:flex;align-items:center;justify-content:center;gap:11px;font-size:12px;font-weight:600}.google-button:hover{background:var(--surface2)}.google-button b{font:bold 17px Arial;color:#4285f4}.auth-privacy{display:flex;align-items:center;justify-content:center;gap:6px;color:var(--muted);font-size:10px;margin-top:23px}.auth-mobile-brand{display:none}
 @media(max-width:700px){.auth-page{grid-template-columns:1fr}.auth-aside{display:none}.auth-main{min-height:100dvh;padding:26px 22px}.auth-mobile-brand{display:flex;align-items:center;gap:9px;margin-bottom:38px;font:800 20px Manrope}.auth-mobile-brand .brand-icon{width:34px;height:34px;font-size:21px}}
+
+
+/* Crownfi motion layer — calm, tactile transitions inspired by modern finance apps */
+@keyframes crownfi-page-in {
+  from { opacity: 0; transform: translateY(9px); filter: blur(2px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+@keyframes crownfi-card-in {
+  from { opacity: 0; transform: translateY(8px) scale(.992); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes crownfi-modal-in {
+  from { opacity: 0; transform: translateY(16px) scale(.975); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes crownfi-check-pop {
+  0% { transform: scale(.82); }
+  65% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.page-transition { animation: crownfi-page-in .32s cubic-bezier(.2,.75,.25,1) both; }
+.page-transition .page-heading { animation: crownfi-card-in .38s .02s both; }
+.page-transition .overview-card,
+.page-transition .chart-section { animation: crownfi-card-in .42s .06s both; }
+.page-transition .overview-card:nth-child(2) { animation-delay: .10s; }
+.page-transition .overview-card:nth-child(3) { animation-delay: .14s; }
+.page-transition .content-section { animation: crownfi-card-in .4s .12s both; }
+.page-transition .content-section:nth-of-type(2) { animation-delay: .16s; }
+.page-transition .task-row,
+.page-transition .habit-row { animation: crownfi-card-in .28s both; }
+.task-row, .habit-row, .overview-card, .chart-section, .date-current,
+.filter-pill, .habit-check, .icon-button, .primary-button, .secondary-button, .nav-item, .bottom-item {
+  transition: background-color .2s ease, border-color .2s ease, color .2s ease, box-shadow .22s ease, transform .22s cubic-bezier(.2,.75,.25,1), opacity .2s ease;
+}
+.overview-card:hover, .chart-section:hover { transform: translateY(-2px); box-shadow: 0 13px 34px rgba(29,55,38,.075); }
+:root.dark .overview-card:hover, :root.dark .chart-section:hover { box-shadow: 0 13px 34px rgba(0,0,0,.24); }
+.primary-button:active, .secondary-button:active, .icon-button:active, .habit-check:active, .filter-pill:active { transform: scale(.97); }
+.task-check:active { transform: scale(.88); }
+.task-row.completed .task-check { animation: crownfi-check-pop .28s ease-out; }
+.task-row { transition: background-color .2s ease, opacity .22s ease; }
+.task-row:hover, .habit-row:hover { background: color-mix(in srgb, var(--surface2) 52%, transparent); }
+.progress-track span, .chart-bar, .ring { transition: width .45s cubic-bezier(.2,.75,.25,1), height .45s cubic-bezier(.2,.75,.25,1), background .25s ease; }
+.modal-backdrop { animation: crownfi-page-in .18s ease both; backdrop-filter: blur(7px); }
+.modal-card { animation: crownfi-modal-in .28s cubic-bezier(.2,.8,.2,1) both; }
+.empty-state .empty-icon { transition: transform .25s ease; }
+.empty-state:hover .empty-icon { transform: translateY(-3px) rotate(-4deg); }
+@media (hover: none) {
+  .overview-card:hover, .chart-section:hover { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}
