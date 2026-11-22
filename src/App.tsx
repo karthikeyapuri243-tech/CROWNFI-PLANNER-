@@ -82,7 +82,7 @@ export default function App() {
   const addHabit = async (e:React.FormEvent) => {e.preventDefault();if(!user||!habitName.trim())return;await createPlannerHabit(user.uid,habitName.trim());setHabitName('');setHabitOpen(false);};
   const toggleHabit = async (h:Habit) => {const existing=checkins.find(c=>c.habitId===h.id&&c.date===selectedDate);await setPlannerHabitCheckin(user!.uid,h.id,selectedDate,!existing?.completed);};
 
-  if(authLoading) return <div className="loading-screen"><div className="loader-mark">c</div><p>Opening your planner…</p></div>;
+  if(authLoading) return <div className="loading-screen"><div className="loader-mark">K</div><p>Opening your planner…</p></div>;
   if(!user) return <Auth/>;
 
   const navItems:[Tab,string,typeof LayoutDashboard][]=[['today','Today',LayoutDashboard],['tasks','Tasks',ListTodo],['habits','Habits',Target],['progress','Progress',TrendingUp]];
@@ -90,7 +90,7 @@ export default function App() {
 
   return <div className="app-shell">
     <aside className="sidebar">
-      <div className="brand"><div className="brand-icon">c</div><div><strong>KRAM</strong><span>PERSONAL PLANNER</span></div></div>
+      <div className="brand"><div className="brand-icon">K</div><div><strong>KRAM</strong><span>PERSONAL PLANNER</span></div></div>
       <div className="workspace-label">WORKSPACE</div>
       <nav>{navItems.map(([id,label,Icon])=><button key={id} className={tab===id?'nav-item active':'nav-item'} onClick={()=>setTab(id)}><Icon size={19}/><span>{label}</span>{id==='tasks'&&<small>{tasks.filter(t=>!t.completed).length}</small>}</button>)}</nav>
       <div className="sidebar-bottom"><div className="user-chip"><div className="avatar">{(user.displayName||user.email||'U').charAt(0).toUpperCase()}</div><div className="user-details"><strong>{user.displayName||'My planner'}</strong><span>{user.email}</span></div><button className="icon-button" title="Sign out" onClick={()=>signOut(auth)}><LogOut size={17}/></button></div></div>
