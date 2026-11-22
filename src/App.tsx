@@ -23,13 +23,14 @@ const isTaskOverdue = (task:Task, referenceDate=todayKey()) => {
   if(task.dueDate<referenceDate)return true;
   if(task.dueDate>referenceDate||!task.dueTime||referenceDate!==todayKey())return false;
   const now=new Date();
-  return timeToMinutes(task.dueTime)+(task.durationMinutes||60)<now.getHours()*60+now.getMinutes();
+  return timeToMinutes(task.dueTime)+(task.durationMinutes||60)<=now.getHours()*60+now.getMinutes();
 };
 
 export default function App() {
   const [user,setUser] = useState<User|null>(null);
   const [authLoading,setAuthLoading] = useState(true);
   const [tasks,setTasks] = useState<Task[]>([]);
+  const [clockNow,setClockNow] = useState(()=>new Date());
   const [habits,setHabits] = useState<Habit[]>([]);
   const [checkins,setCheckins] = useState<Checkin[]>([]);
   const [blocks,setBlocks] = useState<ScheduleBlock[]>([]);
@@ -69,6 +70,7 @@ export default function App() {
   const [filter,setFilter] = useState<'All'|'Open'|'Completed'>('All');
 
   useEffect(() => onAuthStateChanged(auth, u => { setUser(u); setAuthLoading(false); }),[]);
+  useEffect(() => { const timer=window.setInterval(()=>setClockNow(new Date()),30000); return ()=>window.clearInterval(timer); },[]);
   useEffect(() => {
     document.documentElement.classList.toggle('dark',dark);
     localStorage.setItem('KRAM-theme',dark?'dark':'light');
