@@ -495,3 +495,9 @@ body { letter-spacing:-.012em; }
 
 /* Six-item mobile navigation for the added Upcoming view */
 @media(max-width:640px){.bottom-nav{grid-template-columns:repeat(6,minmax(0,1fr));padding-inline:3px}.bottom-item{font-size:7.5px;gap:3px}.bottom-item svg{width:18px;height:18px}}
+
+
+/* Clear feedback when task data cannot sync */
+.sync-label.sync-error{color:#c65b50}
+.sync-label.sync-error .sync-dot{background:#c65b50}
+.sync-error-banner{margin:12px auto 0;width:min(calc(100% - 32px),1000px);padding:11px 14px;border:1px solid #d98a7e;border-radius:9px;background:rgba(217,138,126,.12);color:#b94f45;font-size:12px;line-height:1.5}
