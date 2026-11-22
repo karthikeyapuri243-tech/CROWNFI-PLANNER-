@@ -260,3 +260,31 @@ body { letter-spacing:-.012em; }
   .bottom-item { font-size:8px; }
   .bottom-item svg { width:18px; height:18px; }
 }
+
+/* KRAM full-day weekly timetable */
+.timetable-week-strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin:0 0 18px}
+.timetable-day{display:grid;gap:5px;justify-items:center;padding:11px 4px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--muted);cursor:pointer}
+.timetable-day span{font-size:10px;font-weight:600}.timetable-day strong{font:700 17px Manrope;color:var(--text)}
+.timetable-day.selected{background:var(--green);border-color:var(--green);color:#fff}.timetable-day.selected strong{color:#fff}
+.timetable-tools{margin-bottom:22px}
+.full-day-timeline{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:7px 14px;overflow:hidden}
+.timetable-hour{display:grid;grid-template-columns:64px minmax(0,1fr);min-height:78px;border-bottom:1px solid var(--line);gap:10px}
+.timetable-hour:last-child{border-bottom:0}
+.timetable-hour-label{padding-top:13px;color:var(--muted);font:700 11px Manrope}
+.timetable-hour-content{min-width:0;display:grid;align-content:start;gap:6px;padding:7px 0}
+.timetable-open-slot{justify-self:start;border:0;background:transparent;color:var(--muted);font:500 10px 'DM Sans';padding:3px 6px;cursor:pointer;opacity:.7}
+.timetable-open-slot:hover{color:var(--green);opacity:1}
+.timetable-event{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 11px;border-radius:10px;min-width:0}
+.timetable-event>div,.timetable-event-main{display:grid;gap:4px;min-width:0;text-align:left}
+.timetable-event strong{font:700 11px Manrope;overflow-wrap:anywhere}
+.timetable-event span{font-size:9px;color:var(--muted)}
+.timetable-event button{border:0;background:transparent;color:var(--muted);cursor:pointer;flex:0 0 auto}
+.fixed-event{background:var(--green-soft);border-left:3px solid var(--green)}
+.task-event{background:var(--surface2);border-left:3px solid #a78b58;cursor:grab}
+.task-event:active{cursor:grabbing}
+.timetable-event-main{flex:1;border:0;background:transparent;color:var(--text);cursor:pointer}
+.block-day-picker{display:grid;gap:9px}.block-day-picker>span{font-size:11px;color:var(--muted);font-weight:700}
+.block-day-picker>div{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.block-day{height:37px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--muted);font-size:10px;cursor:pointer}
+.block-day.active{background:var(--green-soft);border-color:var(--green);color:var(--green);font-weight:800}
+@media(max-width:640px){.timetable-week-strip{gap:5px}.timetable-day{padding:9px 2px;border-radius:11px}.timetable-hour{grid-template-columns:48px minmax(0,1fr);gap:7px;min-height:76px}.full-day-timeline{padding:6px 9px}.timetable-hour-label{font-size:10px}.timetable-event{padding:8px}.timetable-event strong{font-size:10px}.timetable-open-slot{font-size:9px}}
