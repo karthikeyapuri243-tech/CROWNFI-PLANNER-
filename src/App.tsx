@@ -59,9 +59,11 @@ export default function App() {
   const [user,setUser] = useState<User|null>(null);
   const [authLoading,setAuthLoading] = useState(true);
   const [tasks,setTasks] = useState<Task[]>([]);
+  const [tasksLoaded,setTasksLoaded] = useState(false);
   const [syncError,setSyncError] = useState('');
   const [clockNow,setClockNow] = useState(()=>new Date());
   const [habits,setHabits] = useState<Habit[]>([]);
+  const [habitsLoaded,setHabitsLoaded] = useState(false);
   const [checkins,setCheckins] = useState<Checkin[]>([]);
   const [blocks,setBlocks] = useState<ScheduleBlock[]>([]);
   const [blockOpen,setBlockOpen] = useState(false);
@@ -120,7 +122,7 @@ export default function App() {
   useEffect(()=>{if(Capacitor.isNativePlatform()||!notificationsEnabled||!('Notification' in window)||Notification.permission!=='granted')return;const check=()=>{const now=new Date();const today=dateKey(now);const currentMinute=now.getHours()*60+now.getMinutes();const notify=(key:string,titleText:string,body:string)=>{if(localStorage.getItem(key)==='sent')return;localStorage.setItem(key,'sent');const options={body,icon:'/kram-icon.svg',tag:key};if('serviceWorker' in navigator){navigator.serviceWorker.ready.then(registration=>registration.showNotification(titleText,options)).catch(error=>{console.warn('KRAM service-worker notification failed',error);});}else{try{new Notification(titleText,options);}catch(error){console.warn('KRAM notification failed',error);}}playReminderAlert(soundEnabled,vibrationEnabled);};tasks.filter(t=>!t.completed&&t.dueDate===today&&!!t.dueTime).forEach(t=>{const at=timeToMinutes(t.dueTime!)-(t.reminderMinutesBefore??10);if(currentMinute===at)notify('KRAM-reminder-task-'+t.id+'-'+today,'Task reminder',t.title+' is coming up.');});habits.filter(h=>!!h.reminderTime).forEach(h=>{const at=timeToMinutes(h.reminderTime!)-(h.reminderMinutesBefore??10);if(currentMinute===at)notify('KRAM-reminder-habit-'+h.id+'-'+today,'Habit reminder','Time to work on '+h.name+'.');});};check();const timer=window.setInterval(check,15000);return()=>window.clearInterval(timer);},[notificationsEnabled,soundEnabled,vibrationEnabled,tasks,habits]);
 
   useEffect(() => {
-    if (!Capacitor.isNativePlatform() || !notificationsEnabled || !user) return;
+    if (!Capacitor.isNativePlatform() || !notificationsEnabled || !user || !tasksLoaded || !habitsLoaded) return;
     let cancelled = false;
     const syncNativeReminders = async () => {
       try {
@@ -151,7 +153,7 @@ export default function App() {
     };
     void syncNativeReminders();
     return ()=>{cancelled=true;};
-  },[notificationsEnabled,user,tasks,habits]);
+  },[notificationsEnabled,user,tasks,habits,tasksLoaded,habitsLoaded]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark',dark);
@@ -160,8 +162,8 @@ export default function App() {
   useEffect(() => { localStorage.setItem('KRAM-schedule-start',scheduleStart); localStorage.setItem('KRAM-schedule-end',scheduleEnd); },[scheduleStart,scheduleEnd]);
   useEffect(() => {
     if(!user) return;
-    const a=subscribePlannerTasks(user.uid,items=>{setTasks(items);setSyncError('');},()=>setSyncError('Tasks could not sync. Check your internet connection and refresh the planner.'));
-    const b=subscribePlannerHabits(user.uid,setHabits);
+    const a=subscribePlannerTasks(user.uid,items=>{setTasks(items);setTasksLoaded(true);setSyncError('');},()=>{setTasksLoaded(true);setSyncError('Tasks could not sync. Check your internet connection and refresh the planner.');});
+    const b=subscribePlannerHabits(user.uid,items=>{setHabits(items);setHabitsLoaded(true);});
     const c=subscribePlannerCheckins(user.uid,setCheckins);
     const d=subscribePlannerBlocks(user.uid,setBlocks);
     return () => {a();b();c();d();};
