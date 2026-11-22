@@ -408,3 +408,39 @@ body { letter-spacing:-.012em; }
 
 
 .overdue-panel .section-heading h2{display:flex;align-items:center;gap:8px}.overdue-heading-dot{width:9px;height:9px;display:inline-block;border-radius:50%;background:#c65d52}.overdue-count{background:rgba(198,93,82,.12);color:#b94e44}.overdue-task-row{border-left:3px solid #c65d52}.overdue-label{display:inline-flex;align-items:center;width:max-content;padding:3px 7px;border-radius:5px;background:rgba(198,93,82,.12);color:#b94e44!important;font-size:9px!important;font-weight:800;letter-spacing:.45px}.overdue-task-row .task-main small{flex-wrap:wrap}.overdue-task-row .secondary-button{border-color:rgba(198,93,82,.35);color:#b94e44}.overdue-task-row .secondary-button:hover{background:rgba(198,93,82,.08)}@media(max-width:640px){.overdue-task-row{align-items:flex-start;flex-wrap:wrap}.overdue-task-row .task-main{flex:1 1 calc(100% - 110px)}.overdue-task-row .task-row-actions{margin-left:37px}.overdue-task-row .secondary-button{height:36px;font-size:10px;padding:0 10px}}
+
+/* Clear visual language for each timeline activity */
+.timeline-legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin:-5px 0 14px;padding:12px 15px;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--muted);font-size:11px;font-weight:650}
+.timeline-legend span{display:inline-flex;align-items:center;gap:7px}
+.timeline-legend i{display:inline-block;width:10px;height:10px;border-radius:3px}
+.legend-class{background:#3478c8}.legend-task{background:#c58a32}.legend-overdue{background:#c6534b}
+.timeline-type-tag{display:inline-flex!important;align-items:center;width:max-content;max-width:100%;padding:4px 7px;border-radius:5px;font-size:8px!important;font-weight:850!important;letter-spacing:.65px;line-height:1.2!important}
+.class-type-tag{background:rgba(52,120,200,.16);color:#2766ad!important}
+.task-type-tag{background:rgba(197,138,50,.18);color:#98651b!important}
+.fixed-event-span{background:#e8f1fc;border:1px solid rgba(52,120,200,.34);border-left:5px solid #3478c8;box-shadow:0 3px 10px rgba(37,91,153,.10);color:#183b61}
+.fixed-event-span strong{color:#183b61!important;font-size:13px}
+.fixed-event-span span:not(.timeline-type-tag){color:#466787!important}
+.task-event{background:#fff4df;border:1px solid rgba(197,138,50,.42);border-left:5px solid #c58a32;box-shadow:0 2px 8px rgba(130,91,29,.07)}
+.task-event .timetable-event-main strong{color:#684616}
+.task-event .timetable-event-main>span:not(.timeline-type-tag){color:#8b6a3d}
+.task-event .timetable-complete{border-color:#c58a32;background:#fffaf0;color:#a87524;box-shadow:0 0 0 3px rgba(197,138,50,.12)}
+.task-event .timetable-event-actions button{color:#8b6a3d}
+.task-event.completed{background:#eef0ed;border-color:#cbd1ca;border-left-color:#87928a;box-shadow:none}
+.task-event.completed .timeline-type-tag{background:#dce3dc;color:#56645a!important}
+.task-event.completed .timetable-event-main strong{color:#68736a!important}
+.task-event.completed .timetable-event-main>span:not(.timeline-type-tag){color:#7d877f!important}
+.task-event.completed .timetable-complete{background:#dce9dd;border-color:#54845b;color:#397044;box-shadow:none}
+@media(prefers-color-scheme:dark){
+  .fixed-event-span{background:#172f49;border-color:#315c84;border-left-color:#68a9ed;color:#e3efff}
+  .fixed-event-span strong{color:#e3efff!important}
+  .fixed-event-span span:not(.timeline-type-tag){color:#b2c9e2!important}
+  .class-type-tag{background:rgba(104,169,237,.18);color:#9ccaff!important}
+  .task-event{background:#382d1c;border-color:#6b5129;border-left-color:#e0ad55}
+  .task-event .timetable-event-main strong{color:#ffdfa7}
+  .task-event .timetable-event-main>span:not(.timeline-type-tag){color:#d8bd91}
+  .task-event .timetable-complete{background:#47371f;border-color:#d09a42;color:#ffd48c}
+  .task-type-tag{background:rgba(224,173,85,.18);color:#ffd48c!important}
+  .task-event.completed{background:#262c28;border-color:#414b43;border-left-color:#78877a}
+  .task-event.completed .timetable-event-main strong{color:#aeb9b0!important}
+}
+@media(max-width:640px){.timeline-legend{gap:8px 12px;padding:10px 11px;font-size:9px}.timeline-type-tag{font-size:7px!important}.fixed-event-span strong{font-size:11px}}
