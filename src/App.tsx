@@ -16,6 +16,7 @@ const prettyDate = (value:string, options:Intl.DateTimeFormatOptions = {weekday:
 const timeToMinutes = (value:string) => { const [h,m]=value.split(':').map(Number); return h*60+m; };
 const minutesToTime = (value:number) => `${String(Math.floor(value/60)).padStart(2,'0')}:${String(value%60).padStart(2,'0')}`;
 const displayTime = (value:string) => new Date(`2000-01-01T${value}:00`).toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'});
+const priorityRank = (value:Task['priority']) => value==='High'?0:value==='Medium'?1:2;
 
 export default function App() {
   const [user,setUser] = useState<User|null>(null);
@@ -116,7 +117,7 @@ export default function App() {
   };
   const scheduleTasks = async () => {
     if(!user || scheduling) return;
-    const pending=todaysTasks.filter(t=>!t.completed&&!t.dueTime).sort((a,b)=>({High:0,Medium:1,Low:2}[a.priority]-{High:0,Medium:1,Low:2}[b.priority])||a.createdAt.localeCompare(b.createdAt));
+    const pending=todaysTasks.filter(t=>!t.completed&&!t.dueTime).sort((a,b)=>priorityRank(a.priority)-priorityRank(b.priority)||a.createdAt.localeCompare(b.createdAt));
     if(!pending.length){setSmartMessage('All unfinished tasks already have a time.');return;}
     const dayStart=timeToMinutes(scheduleStart), dayEnd=timeToMinutes(scheduleEnd);
     if(dayEnd<=dayStart){setSmartMessage('Your available end time must be later than your start time.');return;}
