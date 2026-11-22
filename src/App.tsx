@@ -53,6 +53,14 @@ export default function App() {
   const todaysTasks = useMemo(() => tasks.filter(t=>t.dueDate===selectedDate).sort((a,b)=>(a.dueTime||'').localeCompare(b.dueTime||'')),[tasks,selectedDate]);
   const doneCount = todaysTasks.filter(t=>t.completed).length;
   const completion = todaysTasks.length ? Math.round(doneCount/todaysTasks.length*100) : 0;
+  const nextTask = todaysTasks
+  .filter(t => !t.completed)
+  .sort((a, b) => {
+    if (!a.dueTime) return 1;
+    if (!b.dueTime) return -1;
+    return a.dueTime.localeCompare(b.dueTime);
+  })[0];
+
   const todayCheckins = habits.filter(h=>checkins.some(c=>c.habitId===h.id&&c.date===selectedDate&&c.completed)).length;
   const week = useMemo(()=>Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-6+i);const key=dateKey(d);const day=tasks.filter(t=>t.dueDate===key);return {key,label:d.toLocaleDateString('en-IN',{weekday:'short'}),total:day.length,done:day.filter(t=>t.completed).length};}),[tasks]);
 
