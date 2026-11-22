@@ -208,3 +208,55 @@ body { letter-spacing:-.012em; }
 .quick-add-submit:disabled { opacity:.45; cursor:not-allowed; }
 .quick-add-error { margin:-13px 0 18px 4px; color:#b44b40; font-size:11px; }
 @media(max-width:640px) { .quick-add-task { min-height:54px; gap:8px; padding:6px 7px 6px 13px; margin-bottom:17px; border-radius:14px; } .quick-add-task input { font-size:11px; } .quick-add-submit { min-height:36px; padding:0 12px; font-size:10px; } }
+
+
+/* KRAM Smart Schedule */
+.schedule-date-row { display:flex; align-items:center; gap:12px; margin:-7px 0 20px; color:var(--text); }
+.schedule-date-row strong { font:700 13px Manrope; }
+.schedule-date-row .text-button { margin-left:auto; }
+.schedule-planner-card { padding:24px; border:1px solid var(--line); border-radius:21px; background:var(--surface); box-shadow:var(--shadow); }
+.schedule-card-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:15px; }
+.schedule-card-heading h2 { margin:7px 0 5px; font:750 20px Manrope; letter-spacing:-.6px; }
+.schedule-card-heading p { margin:0; max-width:520px; color:var(--muted); font-size:12px; line-height:1.6; }
+.schedule-spark { flex:0 0 43px; width:43px; height:43px; display:grid; place-items:center; border-radius:15px; background:var(--green-soft); color:var(--green); font-size:23px; }
+.schedule-hours { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:20px 0 15px; }
+.schedule-hours label { display:grid; gap:7px; color:var(--muted); font-size:10px; font-weight:700; }
+.schedule-hours input { width:100%; min-width:0; height:43px; padding:0 12px; border:1px solid var(--line); border-radius:11px; background:var(--bg); color:var(--text); font:600 12px 'DM Sans'; }
+.smart-plan-button { width:100%; justify-content:center; }
+.smart-plan-button:disabled { opacity:.6; cursor:wait; }
+.schedule-message { margin:13px 0 0; color:var(--green); font-size:11px; font-weight:600; }
+.schedule-warning { display:grid; gap:4px; margin-top:17px; padding:14px 16px; border:1px solid rgba(190,130,55,.3); border-radius:14px; background:rgba(190,130,55,.08); color:var(--text); }
+.schedule-warning strong { font:700 12px Manrope; }
+.schedule-warning span { color:var(--muted); font-size:11px; line-height:1.5; }
+.schedule-section { margin-top:30px; }
+.schedule-empty { background:var(--surface); border:1px solid var(--line); border-radius:18px; }
+.schedule-timeline { display:grid; gap:0; padding:5px 0; }
+.timeline-row { display:grid; grid-template-columns:82px 18px minmax(0,1fr) 34px; align-items:stretch; gap:10px; min-height:82px; }
+.timeline-time { display:flex; flex-direction:column; align-items:flex-end; gap:5px; padding-top:15px; }
+.timeline-time strong { color:var(--text); font:700 11px Manrope; white-space:nowrap; }
+.timeline-time span { color:var(--muted); font-size:9px; }
+.timeline-line { position:relative; display:flex; justify-content:center; }
+.timeline-line:before { content:''; position:absolute; top:0; bottom:0; width:1px; background:var(--line); }
+.timeline-line i { position:relative; z-index:1; width:9px; height:9px; margin-top:18px; border:2px solid var(--green); border-radius:50%; background:var(--surface); }
+.timeline-task { align-self:start; display:grid; gap:6px; margin:8px 0 13px; padding:13px 15px; border:1px solid var(--line); border-radius:13px; background:var(--surface); color:var(--text); text-align:left; cursor:pointer; transition:background .2s ease,border-color .2s ease,transform .2s ease; }
+.timeline-task:hover { background:var(--surface2); border-color:color-mix(in srgb,var(--green) 35%,var(--line)); transform:translateY(-1px); }
+.timeline-task strong { font:700 12px Manrope; overflow-wrap:anywhere; }
+.timeline-task span { color:var(--muted); font-size:10px; }
+.timeline-task.is-done strong { text-decoration:line-through; opacity:.6; }
+.timeline-edit { align-self:center; color:var(--muted); }
+@media(max-width:640px) {
+  .schedule-planner-card { padding:18px 15px; border-radius:17px; }
+  .schedule-card-heading h2 { font-size:18px; }
+  .schedule-card-heading p { font-size:10px; }
+  .schedule-spark { width:38px; height:38px; flex-basis:38px; }
+  .schedule-date-row { gap:7px; }
+  .schedule-date-row strong { font-size:11px; }
+  .timeline-row { grid-template-columns:65px 13px minmax(0,1fr) 28px; gap:7px; min-height:76px; }
+  .timeline-time strong { font-size:10px; }
+  .timeline-task { padding:11px 10px; }
+  .timeline-task strong { font-size:11px; }
+  .timeline-edit { width:27px; height:27px; }
+  .bottom-nav { grid-template-columns:repeat(5,minmax(0,1fr)); }
+  .bottom-item { font-size:8px; }
+  .bottom-item svg { width:18px; height:18px; }
+}
