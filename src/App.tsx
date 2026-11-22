@@ -156,18 +156,24 @@ export default function App() {
     setTasks(current=>current.map(item=>item.id===t.id?{...item,completed:nextCompleted}:item));
     try {
       await updatePlannerTask(t.id,{completed:nextCompleted});
-      if(nextCompleted&&t.repeat&&t.repeat!=='none') {
-        const nextDate=nextRepeatDate(t.dueDate,t.repeat);
-        if(t.lastGeneratedDate!==nextDate) {
+    } catch(error) {
+      setTasks(current=>current.map(item=>item.id===t.id?{...item,completed:t.completed}:item));
+      console.error('KRAM task completion update failed:',error);
+      setSmartMessage('Could not update this task. Please check your connection and try again.');
+      return;
+    }
+    if(nextCompleted&&t.repeat&&t.repeat!=='none') {
+      const nextDate=nextRepeatDate(t.dueDate,t.repeat);
+      if(t.lastGeneratedDate!==nextDate) {
+        try {
           await createPlannerTask(t.userId,{title:t.title,notes:t.notes||'',dueDate:nextDate,dueTime:t.dueTime||'',durationMinutes:t.durationMinutes||60,priority:t.priority,repeat:t.repeat,completed:false});
           await updatePlannerTask(t.id,{lastGeneratedDate:nextDate});
           setSmartMessage('Task completed. Next '+t.repeat+' task added for '+prettyDate(nextDate,{month:'short',day:'numeric'})+'.');
+        } catch(error) {
+          console.error('KRAM recurring task creation failed:',error);
+          setSmartMessage('Task completed, but the next recurring task could not be created. Please try again.');
         }
       }
-    } catch(error) {
-      setTasks(current=>current.map(item=>item.id===t.id?{...item,completed:nextCompleted}:item));
-      console.error('KRAM task completion update failed:',error);
-      setSmartMessage('Task status saved, but the next recurring task could not be created. Please try again.');
     }
   };
   const saveQuickTask = async (e:FormEvent) => {
