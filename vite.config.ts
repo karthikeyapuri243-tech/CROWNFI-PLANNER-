@@ -2,10 +2,26 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import {defineConfig} from 'vite';
+import {VitePWA} from 'vite-plugin-pwa';
 
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss()],
+    plugins: [react(), tailwindcss(), VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['kram-icon.svg'],
+      manifest: {
+        name: 'KRAM Personal Planner',
+        short_name: 'KRAM',
+        description: 'Your day, your pace. Plan tasks, schedules and habits.',
+        theme_color: '#111827',
+        background_color: '#f8fafc',
+        display: 'standalone',
+        orientation: 'portrait-primary',
+        start_url: '/',
+        scope: '/',
+        icons: [{ src: '/kram-icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' }],
+      },
+    })],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
