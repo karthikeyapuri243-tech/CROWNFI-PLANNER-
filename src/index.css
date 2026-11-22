@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  --olive: #3D3D2B; /* Darker, richer forest olive */
+  --clay: #9C5237;  /* Deep, high-contrast clay brick */
+  --sand: #DDD9CD;  /* Richer, slightly darker sand base */
+  --paper: #F0EDE5; /* A tiny bit more ink-receptive book paper to increase contrast */
+  --natborder: #A9A596; /* Much darker, crisp borders for elements */
+  --nattext: #1A1A15;   /* Near-black ink-like body text */
+  --natmuted: #3D3B33;  /* Deep charcoal-olive for highly visible icons and labels */
+  
+  /* Theme elements */
+  --cardbg: #FAF9F6; /* Crisp organic light card backdrop */
+  --headerbg: rgba(240, 237, 229, 0.9);
+  --subtlebg: rgba(61, 61, 43, 0.08);
+  --tabhover: rgba(221, 217, 205, 0.5);
+  --bentobg: #FAF9F6;
+  --assistant-bg: rgba(250, 249, 246, 0.96);
+  --dialog-bg: #FAF9F6;
+}
+
+.dark {
+  --olive: #A3B18A;
+  --clay: #E07A5F;
+  --sand: #25271F;
+  --paper: #12130F; /* Deep organic midnight forest black */
+  --natborder: #2B2D24; /* Warm dark olive border */
+  --nattext: #ECEBE4; /* Off-white warm linen */
+  --natmuted: #93958C; /* Muted sage-gray */
+  
+  /* Theme elements */
+  --cardbg: #1C1D17; /* Warm organic charcoal card */
+  --headerbg: rgba(18, 19, 15, 0.85);
+  --subtlebg: rgba(163, 177, 138, 0.08);
+  --tabhover: rgba(43, 45, 36, 0.55);
+  --bentobg: #1C1D17;
+  --assistant-bg: rgba(28, 29, 23, 0.95);
+  --dialog-bg: #1C1D17;
+}
+
+@theme {
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --color-olive: var(--olive);
+  --color-clay: var(--clay);
+  --color-sand: var(--sand);
+  --color-paper: var(--paper);
+  --color-natborder: var(--natborder);
+  --color-nattext: var(--nattext);
+  --color-natmuted: var(--natmuted);
+  
+  --color-cardbg: var(--cardbg);
+  --color-headerbg: var(--headerbg);
+  --color-subtlebg: var(--subtlebg);
+  --color-tabhover: var(--tabhover);
+  --color-bentobg: var(--bentobg);
+  --color-assistantbg: var(--assistant-bg);
+  --color-dialogbg: var(--dialog-bg);
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--nattext);
+  font-family: var(--font-sans);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Custom premium scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(90, 90, 64, 0.25); /* Soft olive-based thumb */
+  border: 1.5px solid transparent;
+  background-clip: padding-box;
+  border-radius: 9999px;
+  transition: background-color 0.15s ease;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(163, 177, 138, 0.25); /* Delicate light-olive thumb */
+  border: 1.5px solid transparent;
+  background-clip: padding-box;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(90, 90, 64, 0.6);
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(163, 177, 138, 0.6);
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Firefox scrollbar compatibility */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(90, 90, 64, 0.25) transparent;
+}
+
+.dark * {
+  scrollbar-color: rgba(163, 177, 138, 0.25) transparent;
+}
+
+
+

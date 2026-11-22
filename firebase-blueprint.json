@@ -1,0 +1,95 @@
+{
+  "entities": {
+    "Task": {
+      "title": "Task",
+      "description": "Represents a task, planner item, or calendar time-block",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "notes": { "type": "string" },
+        "priority": { "type": "string", "enum": ["High", "Medium", "Low"] },
+        "category": { "type": "string" },
+        "dueDate": { "type": "string" },
+        "subtasks": { "type": "array" },
+        "isCompleted": { "type": "boolean" },
+        "completedDates": { "type": "array" },
+        "cancelledDates": { "type": "array" },
+        "isInbox": { "type": "boolean" },
+        "isScheduled": { "type": "boolean" },
+        "startTime": { "type": "string" },
+        "endTime": { "type": "string" },
+        "durationMinutes": { "type": "number" },
+        "isRecurring": { "type": "boolean" },
+        "recurrence": { "type": "object" },
+        "originalDueDate": { "type": "string" },
+        "rescheduleCount": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "title", "priority", "category", "isCompleted", "isInbox", "isScheduled", "createdAt", "updatedAt"]
+    },
+
+    "Habit": {
+      "title": "Habit",
+      "description": "Represents a user-defined habit to track and consistency scores",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "emoji": { "type": "string" },
+        "category": { "type": "string" },
+        "scheduleType": { "type": "string", "enum": ["daily", "weekdays", "specific_days", "flexible"] },
+        "weekdays": { "type": "array" },
+        "timesPerWeek": { "type": "number" },
+        "targetValue": { "type": "number" },
+        "targetUnit": { "type": "string" },
+        "reminderTime": { "type": "string" },
+        "startTime": { "type": "string" },
+        "endTime": { "type": "string" },
+        "durationMinutes": { "type": "number" },
+        "isScheduled": { "type": "boolean" },
+        "habitType": { "type": "string", "enum": ["start", "stop"] },
+        "startDate": { "type": "string" },
+        "endDate": { "type": "string" },
+        "habitStackId": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "name", "emoji", "category", "scheduleType", "isScheduled", "createdAt", "updatedAt"]
+    },
+    "HabitLog": {
+      "title": "HabitLog",
+      "description": "Represents a status check-in log for a habit on a given date",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "habitId": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string", "enum": ["completed", "skipped", "missed"] },
+        "note": { "type": "string" },
+        "value": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "userId", "habitId", "date", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Tasks, checklist items, inbox brain dumps, and scheduled time-blocked calendar events"
+    },
+
+    "habits/{habitId}": {
+      "schema": "Habit",
+      "description": "Habit tracker configurations for recurring user routines"
+    },
+    "habitLogs/{habitLogId}": {
+      "schema": "HabitLog",
+      "description": "Status logs representing habit achievements, skips, or misses per date"
+    }
+  }
+}
