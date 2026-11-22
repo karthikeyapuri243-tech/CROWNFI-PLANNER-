@@ -173,6 +173,14 @@ body { letter-spacing:-.012em; }
 }
 .next-step-copy p { margin:0; color:var(--muted); font-size:12px; }
 .next-step-copy p span { padding:0 4px; }
+.next-step-meta { display:flex; align-items:center; flex-wrap:wrap; gap:3px; }
+.priority-label { font-weight:700; }
+.priority-high { color:#c45c50; }
+.priority-medium { color:var(--green); }
+.priority-low { color:var(--muted); }
+.next-step-complete { display:inline-flex; align-items:center; gap:7px; margin-top:16px; padding:10px 14px; border:0; border-radius:999px; background:var(--green); color:white; font:600 12px Manrope; cursor:pointer; transition:transform .18s ease, opacity .18s ease; }
+.next-step-complete:hover { transform:translateY(-1px); opacity:.9; }
+.next-step-complete:active { transform:scale(.98); }
 .next-step-icon {
   flex:0 0 48px;
   width:48px;
