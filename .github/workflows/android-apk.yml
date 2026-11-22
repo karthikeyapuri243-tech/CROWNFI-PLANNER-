@@ -29,6 +29,11 @@ jobs:
           java-version: 21
       - name: Install dependencies
         run: npm install
+      - name: Restore stable Android debug signing key
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: kram-android-debug-keystore-v1
       - name: Build web app
         run: npm run build
       - name: Generate Android project
@@ -48,10 +53,14 @@ jobs:
           PY
       - name: Sync native plugins and web assets
         run: npx cap sync android
-      - name: Build installable debug APK
+      - name: Print Android signing fingerprints
         run: |
           cd android
           chmod +x gradlew
+          ./gradlew signingReport
+      - name: Build installable debug APK
+        run: |
+          cd android
           ./gradlew assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v4
