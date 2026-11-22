@@ -7,6 +7,12 @@ const config: CapacitorConfig = {
   android: {
     backgroundColor: '#f8fafc',
   },
+  plugins: {
+    SocialLogin: {
+      providers: { google: true },
+      logLevel: 1,
+    },
+  },
 };
 
 export default config;
