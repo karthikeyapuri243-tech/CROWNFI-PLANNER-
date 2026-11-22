@@ -18,11 +18,10 @@ const timeToMinutes = (value:string) => { const [h,m]=value.split(':').map(Numbe
 const minutesToTime = (value:number) => `${String(Math.floor(value/60)).padStart(2,'0')}:${String(value%60).padStart(2,'0')}`;
 const displayTime = (value:string) => new Date(`2000-01-01T${value}:00`).toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'});
 const priorityRank = (value:Task['priority']) => value==='High'?0:value==='Medium'?1:2;
-const isTaskOverdue = (task:Task, referenceDate=todayKey()) => {
+const isTaskOverdue = (task:Task, referenceDate=todayKey(), now=new Date()) => {
   if(task.completed)return false;
   if(task.dueDate<referenceDate)return true;
   if(task.dueDate>referenceDate||!task.dueTime||referenceDate!==todayKey())return false;
-  const now=new Date();
   return timeToMinutes(task.dueTime)+(task.durationMinutes||60)<=now.getHours()*60+now.getMinutes();
 };
 
@@ -217,7 +216,7 @@ export default function App() {
     finally{setScheduling(false);}
   };
   const scheduledTasks=todaysTasks.filter(t=>!t.completed&&!!t.dueTime).sort((a,b)=>(a.dueTime||'').localeCompare(b.dueTime||''));
-  const overdueTasks=tasks.filter(t=>isTaskOverdue(t,selectedDate)).sort((a,b)=>a.dueDate.localeCompare(b.dueDate)||(a.dueTime||'').localeCompare(b.dueTime||''));
+  const overdueTasks=tasks.filter(t=>isTaskOverdue(t,selectedDate,clockNow)).sort((a,b)=>a.dueDate.localeCompare(b.dueDate)||(a.dueTime||'').localeCompare(b.dueTime||''));
   const overdueTaskIds=new Set(overdueTasks.map(t=>t.id));
   const unscheduledTasks=todaysTasks.filter(t=>!t.completed&&!t.dueTime&&!overdueTaskIds.has(t.id));
   const scheduleConflicts=scheduledTasks.filter((task,index)=>scheduledTasks.slice(0,index).some(previous=>timeToMinutes(task.dueTime!)<timeToMinutes(previous.dueTime!)+(previous.durationMinutes||60)));
