@@ -5,14 +5,17 @@ import Auth from './components/Auth';
 import { createPlannerTask, updatePlannerTask, deletePlannerTask, subscribePlannerTasks, createPlannerHabit, deletePlannerHabit, subscribePlannerHabits, setPlannerHabitCheckin, subscribePlannerCheckins } from './lib/plannerDb';
 import { CalendarDays, Check, CheckCircle2, ChevronLeft, ChevronRight, Circle, Clock3, Flame, LayoutDashboard, ListTodo, LogOut, Menu, Moon, Plus, Sun, Target, Trash2, TrendingUp, X } from 'lucide-react';
 
-type Task = { id:string; userId:string; title:string; notes?:string; dueDate:string; dueTime?:string; priority:'High'|'Medium'|'Low'; completed:boolean; createdAt:string };
+type Task = { id:string; userId:string; title:string; notes?:string; dueDate:string; dueTime?:string; durationMinutes?:number; priority:'High'|'Medium'|'Low'; completed:boolean; createdAt:string };
 type Habit = { id:string; userId:string; name:string; emoji:string; createdAt:string };
 type Checkin = { id:string; userId:string; habitId:string; date:string; completed:boolean };
-type Tab = 'today'|'tasks'|'habits'|'progress';
+type Tab = 'today'|'schedule'|'tasks'|'habits'|'progress';
 
 const dateKey = (d:Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const todayKey = () => dateKey(new Date());
 const prettyDate = (value:string, options:Intl.DateTimeFormatOptions = {weekday:'long',month:'long',day:'numeric'}) => new Date(value+'T12:00:00').toLocaleDateString('en-IN', options);
+const timeToMinutes = (value:string) => { const [h,m]=value.split(':').map(Number); return h*60+m; };
+const minutesToTime = (value:number) => `${String(Math.floor(value/60)).padStart(2,'0')}:${String(value%60).padStart(2,'0')}`;
+const displayTime = (value:string) => new Date(`2000-01-01T${value}:00`).toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'});
 
 export default function App() {
   const [user,setUser] = useState<User|null>(null);
@@ -35,6 +38,11 @@ export default function App() {
   const [notes,setNotes] = useState('');
   const [dueDate,setDueDate] = useState(todayKey());
   const [dueTime,setDueTime] = useState('');
+  const [durationMinutes,setDurationMinutes] = useState(60);
+  const [scheduleStart,setScheduleStart] = useState(() => localStorage.getItem('KRAM-schedule-start') || '08:00');
+  const [scheduleEnd,setScheduleEnd] = useState(() => localStorage.getItem('KRAM-schedule-end') || '21:00');
+  const [scheduling,setScheduling] = useState(false);
+  const [smartMessage,setSmartMessage] = useState('');
   const [priority,setPriority] = useState<'High'|'Medium'|'Low'>('Medium');
   const [habitName,setHabitName] = useState('');
   const [mobileMenu,setMobileMenu] = useState(false);
@@ -45,6 +53,7 @@ export default function App() {
     document.documentElement.classList.toggle('dark',dark);
     localStorage.setItem('KRAM-theme',dark?'dark':'light');
   },[dark]);
+  useEffect(() => { localStorage.setItem('KRAM-schedule-start',scheduleStart); localStorage.setItem('KRAM-schedule-end',scheduleEnd); },[scheduleStart,scheduleEnd]);
   useEffect(() => {
     if(!user) return;
     const a=subscribePlannerTasks(user.uid,setTasks);
@@ -67,8 +76,8 @@ export default function App() {
   const todayCheckins = habits.filter(h=>checkins.some(c=>c.habitId===h.id&&c.date===selectedDate&&c.completed)).length;
   const week = useMemo(()=>Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-6+i);const key=dateKey(d);const day=tasks.filter(t=>t.dueDate===key);return {key,label:d.toLocaleDateString('en-IN',{weekday:'short'}),total:day.length,done:day.filter(t=>t.completed).length};}),[tasks]);
 
-  const openNewTask = (date=selectedDate) => {setEditing(null);setTitle('');setNotes('');setDueDate(date);setDueTime('');setPriority('Medium');setTaskError('');setTaskOpen(true);};
-  const openEditTask = (t:Task) => {setEditing(t);setTitle(t.title);setNotes(t.notes||'');setDueDate(t.dueDate);setDueTime(t.dueTime||'');setPriority(t.priority);setTaskError('');setTaskOpen(true);};
+  const openNewTask = (date=selectedDate) => {setEditing(null);setTitle('');setNotes('');setDueDate(date);setDueTime('');setDurationMinutes(60);setPriority('Medium');setTaskError('');setTaskOpen(true);};
+  const openEditTask = (t:Task) => {setEditing(t);setTitle(t.title);setNotes(t.notes||'');setDueDate(t.dueDate);setDueTime(t.dueTime||'');setDurationMinutes(t.durationMinutes||60);setPriority(t.priority);setTaskError('');setTaskOpen(true);};
   const saveTask = async (e:FormEvent) => {
     e.preventDefault();
     if (savingTask) return;
@@ -77,7 +86,7 @@ export default function App() {
     setSavingTask(true);
     setTaskError('');
     try {
-      const payload={title:title.trim(),notes:notes.trim(),dueDate,dueTime,priority,completed:editing?.completed||false};
+      const payload={title:title.trim(),notes:notes.trim(),dueDate,dueTime,durationMinutes,priority,completed:editing?.completed||false};
       if(editing) await updatePlannerTask(editing.id,payload);
       else await createPlannerTask(user.uid,payload);
       setTaskOpen(false);
@@ -105,13 +114,44 @@ export default function App() {
       setQuickTaskSaving(false);
     }
   };
+  const scheduleTasks = async () => {
+    if(!user || scheduling) return;
+    const pending=todaysTasks.filter(t=>!t.completed&&!t.dueTime).sort((a,b)=>({High:0,Medium:1,Low:2}[a.priority]-{High:0,Medium:1,Low:2}[b.priority])||a.createdAt.localeCompare(b.createdAt));
+    if(!pending.length){setSmartMessage('All unfinished tasks already have a time.');return;}
+    const dayStart=timeToMinutes(scheduleStart), dayEnd=timeToMinutes(scheduleEnd);
+    if(dayEnd<=dayStart){setSmartMessage('Your available end time must be later than your start time.');return;}
+    const occupied=todaysTasks.filter(t=>!!t.dueTime).map(t=>({start:timeToMinutes(t.dueTime!),end:timeToMinutes(t.dueTime!)+(t.durationMinutes||60)})).sort((a,b)=>a.start-b.start);
+    const planned:{task:Task;start:number;end:number}[]=[];
+    for(const task of pending){
+      const duration=task.durationMinutes||60;
+      let candidate=dayStart;
+      let placed=false;
+      while(candidate+duration<=dayEnd){
+        const conflict=[...occupied,...planned].find(slot=>candidate<slot.end+15&&candidate+duration>slot.start-15);
+        if(conflict){candidate=conflict.end+15;continue;}
+        planned.push({task,start:candidate,end:candidate+duration});placed=true;break;
+      }
+      if(!placed) continue;
+    }
+    if(!planned.length){setSmartMessage('There is not enough free time in your available hours. Try extending your day.');return;}
+    setScheduling(true);setSmartMessage('');
+    try{
+      for(const item of planned) await updatePlannerTask(item.task.id,{dueTime:minutesToTime(item.start),durationMinutes:item.task.durationMinutes||60});
+      const missed=pending.length-planned.length;
+      setSmartMessage(`${planned.length} task${planned.length===1?'':'s'} scheduled${missed?`. ${missed} did not fit in your available hours`:''}.`);
+    }catch(error){console.error('KRAM smart schedule failed:',error);setSmartMessage('Could not save the full schedule. Please check your connection and try again.');}
+    finally{setScheduling(false);}
+  };
+  const scheduledTasks=todaysTasks.filter(t=>!!t.dueTime).sort((a,b)=>(a.dueTime||'').localeCompare(b.dueTime||''));
+  const unscheduledTasks=todaysTasks.filter(t=>!t.dueTime);
+  const scheduleConflicts=scheduledTasks.filter((task,index)=>scheduledTasks.slice(0,index).some(previous=>timeToMinutes(task.dueTime!)<timeToMinutes(previous.dueTime!)+(previous.durationMinutes||60)));
   const addHabit = async (e:React.FormEvent) => {e.preventDefault();if(!user||!habitName.trim())return;await createPlannerHabit(user.uid,habitName.trim());setHabitName('');setHabitOpen(false);};
   const toggleHabit = async (h:Habit) => {const existing=checkins.find(c=>c.habitId===h.id&&c.date===selectedDate);await setPlannerHabitCheckin(user!.uid,h.id,selectedDate,!existing?.completed);};
 
   if(authLoading) return <div className="loading-screen"><div className="loader-mark">K</div><p>Opening your planner…</p></div>;
   if(!user) return <Auth/>;
 
-  const navItems:[Tab,string,typeof LayoutDashboard][]=[['today','Today',LayoutDashboard],['tasks','Tasks',ListTodo],['habits','Habits',Target],['progress','Progress',TrendingUp]];
+  const navItems:[Tab,string,typeof LayoutDashboard][]=[['today','Today',LayoutDashboard],['schedule','Schedule',CalendarDays],['tasks','Tasks',ListTodo],['habits','Habits',Target],['progress','Progress',TrendingUp]];
   const visibleTasks = (tab==='tasks'?tasks:todaysTasks).filter(t=>filter==='All'||(filter==='Open'?!t.completed:t.completed)).sort((a,b)=>a.dueDate.localeCompare(b.dueDate)||(a.dueTime||'').localeCompare(b.dueTime||''));
 
   return <div className="app-shell">
@@ -156,12 +196,19 @@ export default function App() {
           <section className="content-section"><div className="section-heading"><div><h2>Today's tasks</h2><p>Keep it simple. Focus on what matters.</p></div><button className="text-button" onClick={()=>setTab('tasks')}>View all <ChevronRight size={16}/></button></div><TaskList tasks={todaysTasks} onToggle={toggleTask} onEdit={openEditTask} onDelete={deletePlannerTask} emptyAction={()=>openNewTask()}/></section>
           <section className="content-section"><div className="section-heading"><div><h2>Daily habits</h2><p>Show up for the small things.</p></div><button className="text-button" onClick={()=>setTab('habits')}>Manage habits <ChevronRight size={16}/></button></div><HabitList habits={habits} checkins={checkins} date={selectedDate} onToggle={toggleHabit}/></section>
         </>}
+        {tab==='schedule'&&<><div className="page-heading"><div><div className="eyebrow">MAKE ROOM FOR WHAT MATTERS</div><h1>My schedule</h1><p>Plan your day, one focused block at a time.</p></div><button className="primary-button" onClick={()=>openNewTask(selectedDate)}><Plus size={18}/> Schedule task</button></div>
+          <div className="schedule-date-row"><button className="icon-button" onClick={()=>{const d=new Date(selectedDate+'T12:00:00');d.setDate(d.getDate()-1);setSelectedDate(dateKey(d));setSmartMessage('');}}><ChevronLeft size={18}/></button><strong>{prettyDate(selectedDate,{weekday:'short',month:'long',day:'numeric',year:'numeric'})}</strong><button className="icon-button" onClick={()=>{const d=new Date(selectedDate+'T12:00:00');d.setDate(d.getDate()+1);setSelectedDate(dateKey(d));setSmartMessage('');}}><ChevronRight size={18}/></button><button className="text-button" onClick={()=>{setSelectedDate(todayKey());setSmartMessage('');}}>Today</button></div>
+          <section className="schedule-planner-card"><div className="schedule-card-heading"><div><span className="eyebrow">SMART PLANNER</span><h2>When are you available?</h2><p>Choose your working hours. KRAM will fit unscheduled tasks around existing plans.</p></div><div className="schedule-spark">✦</div></div><div className="schedule-hours"><label>Start time<input type="time" value={scheduleStart} onChange={e=>setScheduleStart(e.target.value)}/></label><label>End time<input type="time" value={scheduleEnd} onChange={e=>setScheduleEnd(e.target.value)}/></label></div><button className="primary-button smart-plan-button" onClick={scheduleTasks} disabled={scheduling}>{scheduling?'Building your day…':'✦  Build my schedule'}</button>{smartMessage&&<p className="schedule-message" role="status">{smartMessage}</p>}</section>
+          {scheduleConflicts.length>0&&<div className="schedule-warning"><strong>Schedule overlap detected</strong><span>{scheduleConflicts.map(t=>t.title).join(', ')} may overlap with an earlier task. Edit the times to fix this.</span></div>}
+          <section className="content-section schedule-section"><div className="section-heading"><div><h2>Your timeline</h2><p>{scheduledTasks.length} scheduled · {unscheduledTasks.length} without a time</p></div></div>{scheduledTasks.length===0?<div className="empty-state schedule-empty"><div className="empty-icon"><Clock3 size={23}/></div><strong>Your day is still open</strong><p>Add a task with a time or let Smart Planner arrange your unscheduled tasks.</p><button className="secondary-button" onClick={()=>openNewTask(selectedDate)}><Plus size={16}/> Add a scheduled task</button></div>:<div className="schedule-timeline">{scheduledTasks.map(t=><div className="timeline-row" key={t.id}><div className="timeline-time"><strong>{displayTime(t.dueTime!)}</strong><span>{t.durationMinutes||60} min</span></div><div className="timeline-line"><i/></div><button className={t.completed?'timeline-task is-done':'timeline-task'} onClick={()=>openEditTask(t)}><strong>{t.title}</strong><span>{displayTime(minutesToTime(timeToMinutes(t.dueTime!)+(t.durationMinutes||60)))} · {t.priority} priority</span></button><button className="icon-button timeline-edit" title="Edit scheduled task" onClick={()=>openEditTask(t)}><Clock3 size={16}/></button></div>)}</div>}</section>
+          {unscheduledTasks.length>0&&<section className="content-section"><div className="section-heading"><div><h2>Needs a time</h2><p>These tasks are waiting to be placed in your day.</p></div></div><div className="task-list">{unscheduledTasks.map(t=><div className="task-row" key={t.id}><div className="task-main"><strong>{t.title}</strong><small><i className={'priority-dot '+t.priority.toLowerCase()}/>{t.priority} priority · {t.durationMinutes||60} min</small></div><button className="secondary-button" onClick={()=>openEditTask(t)}>Set time</button></div>)}</div></section>}
+        </>}
         {tab==='tasks'&&<><div className="page-heading"><div><div className="eyebrow">STAY ON TOP OF IT</div><h1>Your tasks</h1><p>Everything you need to do, in one place.</p></div><button className="primary-button" onClick={()=>openNewTask(todayKey())}><Plus size={18}/> Add task</button></div><div className="filter-row">{(['All','Open','Completed'] as const).map(f=><button key={f} className={filter===f?'filter-pill selected':'filter-pill'} onClick={()=>setFilter(f)}>{f}{f==='All'&&<span>{tasks.length}</span>}</button>)}</div><TaskList tasks={visibleTasks} onToggle={toggleTask} onEdit={openEditTask} onDelete={deletePlannerTask} showDate emptyAction={()=>openNewTask(todayKey())}/></>}
         {tab==='habits'&&<><div className="page-heading"><div><div className="eyebrow">CONSISTENCY OVER PERFECTION</div><h1>Your habits</h1><p>Build routines that make your days better.</p></div><button className="primary-button" onClick={()=>setHabitOpen(true)}><Plus size={18}/> Add habit</button></div><div className="habit-date-note"><CalendarDays size={17}/> Check in for <strong>{prettyDate(selectedDate)}</strong><button className="text-button" onClick={()=>setSelectedDate(todayKey())}>Go to today</button></div><HabitList habits={habits} checkins={checkins} date={selectedDate} onToggle={toggleHabit} onDelete={deletePlannerHabit}/></>}
         {tab==='progress'&&<><div className="page-heading"><div><div className="eyebrow">NOTICE YOUR MOMENTUM</div><h1>Your progress</h1><p>Look back, learn, and keep moving forward.</p></div></div><section className="overview-grid progress-overview"><div className="overview-card"><div className="card-topline"><span>TOTAL TASKS DONE</span><CheckCircle2 size={17}/></div><strong className="stat-number">{tasks.filter(t=>t.completed).length}</strong><p className="stat-caption">Every completed task counts.</p></div><div className="overview-card"><div className="card-topline"><span>ACTIVE HABITS</span><Target size={17}/></div><strong className="stat-number">{habits.length}</strong><p className="stat-caption">Routines you're building.</p></div><div className="overview-card"><div className="card-topline"><span>HABIT CHECK-INS</span><Flame size={17}/></div><strong className="stat-number">{checkins.filter(c=>c.completed).length}</strong><p className="stat-caption">Small wins, added up.</p></div></section><section className="content-section chart-section"><div className="section-heading"><div><h2>Last 7 days</h2><p>Tasks completed each day.</p></div></div><div className="weekly-chart">{week.map(d=><div className="chart-column" key={d.key}><div className="chart-value">{d.done}/{d.total}</div><div className="chart-bar-area"><div className="chart-bar" style={{height:(d.total?Math.max(6,d.done/d.total*100):0)+'%'}}/></div><span>{d.label}</span></div>)}</div></section></>}
       </div>
     </main>
-    {taskOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setTaskOpen(false)}}><form className="modal-card" onSubmit={saveTask}><div className="modal-heading"><div><div className="eyebrow">{editing?'UPDATE TASK':'MAKE IT HAPPEN'}</div><h2>{editing?'Edit task':'New task'}</h2></div><button type="button" className="icon-button" onClick={()=>setTaskOpen(false)}><X size={19}/></button></div><label>Task name<input autoFocus required maxLength={120} placeholder="What do you need to do?" value={title} onChange={e=>setTitle(e.target.value)}/></label><label>Notes <span className="optional">Optional</span><textarea rows={3} placeholder="Add a little detail…" value={notes} onChange={e=>setNotes(e.target.value)}/></label><div className="form-two"><label>Due date<input type="date" value={dueDate} onChange={e=>setDueDate(e.target.value)} required/></label><label>Time <span className="optional">Optional</span><input type="time" value={dueTime} onChange={e=>setDueTime(e.target.value)}/></label></div><label>Priority<select value={priority} onChange={e=>setPriority(e.target.value as 'High'|'Medium'|'Low')}><option>Low</option><option>Medium</option><option>High</option></select></label>{taskError&&<div className="auth-error" role="alert">{taskError}</div>}<div className="modal-actions"><button type="button" className="secondary-button" onClick={()=>setTaskOpen(false)} disabled={savingTask}>Cancel</button><button className="primary-button" type="submit" disabled={savingTask}>{savingTask?'Saving…':editing?'Save changes':'Add task'}</button></div></form></div>}
+    {taskOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setTaskOpen(false)}}><form className="modal-card" onSubmit={saveTask}><div className="modal-heading"><div><div className="eyebrow">{editing?'UPDATE TASK':'MAKE IT HAPPEN'}</div><h2>{editing?'Edit task':'New task'}</h2></div><button type="button" className="icon-button" onClick={()=>setTaskOpen(false)}><X size={19}/></button></div><label>Task name<input autoFocus required maxLength={120} placeholder="What do you need to do?" value={title} onChange={e=>setTitle(e.target.value)}/></label><label>Notes <span className="optional">Optional</span><textarea rows={3} placeholder="Add a little detail…" value={notes} onChange={e=>setNotes(e.target.value)}/></label><div className="form-two"><label>Due date<input type="date" value={dueDate} onChange={e=>setDueDate(e.target.value)} required/></label><label>Start time <span className="optional">Optional</span><input type="time" value={dueTime} onChange={e=>setDueTime(e.target.value)}/></label></div><label>Duration<select value={durationMinutes} onChange={e=>setDurationMinutes(Number(e.target.value))}><option value={15}>15 minutes</option><option value={30}>30 minutes</option><option value={45}>45 minutes</option><option value={60}>1 hour</option><option value={90}>1 hour 30 minutes</option><option value={120}>2 hours</option><option value={180}>3 hours</option></select></label><label>Priority<select value={priority} onChange={e=>setPriority(e.target.value as 'High'|'Medium'|'Low')}><option>Low</option><option>Medium</option><option>High</option></select></label>{taskError&&<div className="auth-error" role="alert">{taskError}</div>}<div className="modal-actions"><button type="button" className="secondary-button" onClick={()=>setTaskOpen(false)} disabled={savingTask}>Cancel</button><button className="primary-button" type="submit" disabled={savingTask}>{savingTask?'Saving…':editing?'Save changes':'Add task'}</button></div></form></div>}
     {habitOpen&&<div className="modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setHabitOpen(false)}}><form className="modal-card" onSubmit={addHabit}><div className="modal-heading"><div><div className="eyebrow">BUILD A ROUTINE</div><h2>Add a habit</h2></div><button type="button" className="icon-button" onClick={()=>setHabitOpen(false)}><X size={19}/></button></div><label>Habit name<input autoFocus required maxLength={80} placeholder="e.g. Read for 20 minutes" value={habitName} onChange={e=>setHabitName(e.target.value)}/></label><div className="modal-actions"><button type="button" className="secondary-button" onClick={()=>setHabitOpen(false)}>Cancel</button><button className="primary-button" type="submit">Add habit</button></div></form></div>}
     <nav className="bottom-nav">{navItems.map(([id,label,Icon])=><button key={id} className={tab===id?'bottom-item active':'bottom-item'} onClick={()=>setTab(id)}><Icon size={20}/><span>{label}</span></button>)}</nav>
   </div>;
