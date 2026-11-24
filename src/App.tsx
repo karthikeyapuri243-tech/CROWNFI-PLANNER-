@@ -59,6 +59,24 @@ const isTaskOverdue = (task:Task, referenceDate=todayKey(), now=new Date()) => {
   return timeToMinutes(task.dueTime)+(task.durationMinutes||60)<=now.getHours()*60+now.getMinutes();
 };
 
+const compareAppVersions = (left:string,right:string) => {
+  const a=left.replace(/^v/i,'').split('.').map(part=>Number.parseInt(part,10)||0);
+  const b=right.replace(/^v/i,'').split('.').map(part=>Number.parseInt(part,10)||0);
+  for(let i=0;i<Math.max(a.length,b.length);i++){const difference=(a[i]||0)-(b[i]||0);if(difference!==0)return difference;}
+  return 0;
+};
+const getLatestKramRelease = async () => {
+  const response=await fetch('https://api.github.com/repos/karthikeyapuri243-tech/CROWNFI-PLANNER-/releases/latest',{headers:{Accept:'application/vnd.github+json'}});
+  if(!response.ok)throw new Error('GitHub release check failed ('+response.status+').');
+  const release=await response.json();
+  const version=String(release.tag_name||'').replace(/^v/i,'');
+  if(!/^\\d+\\.\\d+\\.\\d+$/.test(version))throw new Error('The latest KRAM release has an invalid version.');
+  const apk=Array.isArray(release.assets)?release.assets.find((asset:any)=>asset.name==='KRAM-'+version+'.apk'):null;
+  if(!apk?.browser_download_url)throw new Error('The latest KRAM release does not contain its APK file.');
+  const installed=await CapacitorApp.getInfo();
+  return compareAppVersions(version,installed.version)>0?{version,url:apk.browser_download_url}:null;
+};
+
 export default function App() {
   const [user,setUser] = useState<User|null>(null);
   const [authLoading,setAuthLoading] = useState(true);
@@ -88,6 +106,12 @@ export default function App() {
   const [habitReminderTime,setHabitReminderTime] = useState('');
   const [habitReminderMinutesBefore,setHabitReminderMinutesBefore] = useState(10);
   const [alertsOpen,setAlertsOpen] = useState(false);
+  const [updateAvailable,setUpdateAvailable] = useState<{version:string;url:string}|null>(null);
+  const [updateChecking,setUpdateChecking] = useState(false);
+  const [updateBusy,setUpdateBusy] = useState(false);
+  const [updateProgress,setUpdateProgress] = useState(0);
+  const [updateMessage,setUpdateMessage] = useState('');
+  const [downloadedUpdatePath,setDownloadedUpdatePath] = useState('');
   const [notificationsEnabled,setNotificationsEnabled] = useState(()=>localStorage.getItem('KRAM-notifications')==='on');
   const [soundEnabled,setSoundEnabled] = useState(()=>localStorage.getItem('KRAM-sound')!=='off');
   const [vibrationEnabled,setVibrationEnabled] = useState(()=>localStorage.getItem('KRAM-vibration')!=='off');
