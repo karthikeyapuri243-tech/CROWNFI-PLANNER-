@@ -1,5 +1,9 @@
 import { useEffect, useMemo, useState, type CSSProperties, type FormEvent } from 'react';
 import { Capacitor } from '@capacitor/core';
+import { App as CapacitorApp } from '@capacitor/app';
+import { FileTransfer } from '@capacitor/file-transfer';
+import { Directory, Filesystem } from '@capacitor/filesystem';
+import { KramInstaller } from './lib/kramInstaller';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { auth } from './lib/firebase';
