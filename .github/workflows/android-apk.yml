@@ -107,6 +107,45 @@ jobs:
           mkdir -p "$HOME/.android"
           printf '%s' "$KRAM_DEBUG_KEYSTORE_BASE64" | tr -d '\r\n\t ' | base64 --decode > "$HOME/.android/debug.keystore"
           chmod 600 "$HOME/.android/debug.keystore"
+      - name: Explicitly configure and verify stable APK signing
+        run: |
+          keytool -list -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          gradle = Path("android/app/build.gradle")
+          content = gradle.read_text()
+          if "kramStableDebug" not in content:
+              content, count = re.subn(
+                  r"(android\\s*\\{)",
+                  r'''\\1
+              signingConfigs {
+                  kramStableDebug {
+                      storeFile file(System.getenv("HOME") + "/.android/debug.keystore")
+                      storePassword "android"
+                      keyAlias "androiddebugkey"
+                      keyPassword "android"
+                  }
+              }''',
+                  content,
+                  count=1
+              )
+              if count != 1:
+                  raise SystemExit("Could not insert stable KRAM signing configuration")
+          if not re.search(r"buildTypes\\s*\\{", content):
+              raise SystemExit("Could not find Android buildTypes block")
+          if not re.search(r"debug\\s*\\{[^}]*kramStableDebug", content, re.S):
+              content, count = re.subn(
+                  r"(buildTypes\\s*\\{)",
+                  r"\\1\\n        debug {\\n            signingConfig signingConfigs.kramStableDebug\\n        }",
+                  content,
+                  count=1
+              )
+              if count != 1:
+                  raise SystemExit("Could not attach stable signing config to debug APK")
+          gradle.write_text(content)
+          print("KRAM debug APK is explicitly configured to use the restored stable keystore.")
+          PY
       - name: Build installable debug APK
         run: |
           cd android
