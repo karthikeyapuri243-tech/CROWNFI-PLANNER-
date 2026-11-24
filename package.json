@@ -31,8 +31,7 @@
     "@capacitor/android": "^7.4.3",
     "@capacitor/app": "^7.1.2",
     "@capacitor/filesystem": "^7.1.9",
-    "@capacitor/file-transfer": "^1.0.12",
-    "@m430/capacitor-app-install": "^0.0.2"
+    "@capacitor/file-transfer": "^1.0.12"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
