@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type CSSProperties, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { App as CapacitorApp } from '@capacitor/app';
 import { FileTransfer } from '@capacitor/file-transfer';
@@ -109,6 +109,7 @@ const getLatestKramRelease = async () => {
 };
 
 export default function App() {
+  const pendingDeleteRef = useRef<{key:string;expires:number}|null>(null);
   const [user,setUser] = useState<User|null>(null);
   const [authLoading,setAuthLoading] = useState(true);
   const [tasks,setTasks] = useState<Task[]>([]);
@@ -389,9 +390,10 @@ export default function App() {
   };
   const openBlockForm=()=>{setEditingBlock(null);setBlockTitle('');setBlockStart('09:00');setBlockEnd('10:00');setBlockRepeat('weekly');setBlockDate(selectedDate);setBlockDays([1,2,3,4,5]);setBlockError('');setBlockOpen(true);};
   const openEditBlock=(block:ScheduleBlock)=>{setEditingBlock(block);setBlockTitle(block.title);setBlockStart(block.startTime);setBlockEnd(block.endTime);setBlockRepeat(block.repeat);setBlockDate(block.date||selectedDate);setBlockDays(block.days||[]);setBlockError('');setBlockOpen(true);};
-  const handleDeleteTask=async(id:string)=>{if(window.confirm('Delete this task? This cannot be undone.')){try{await deletePlannerTask(id);triggerKramHaptic(vibrationEnabled,'success');}catch(error){console.error(error);window.alert('Could not delete the task. Please try again.');}}};
-  const handleDeleteHabit=async(id:string)=>{const habit=habits.find(h=>h.id===id);if(!window.confirm('Delete '+(habit?.name||'this habit')+'? Its habit history and check-ins may also be removed. This cannot be undone.'))return;try{await deletePlannerHabit(id);triggerKramHaptic(vibrationEnabled,'success');}catch(error){console.error(error);window.alert('Could not delete the habit. Please try again.');}};
-  const handleDeleteBlock=async(id:string)=>{if(window.confirm('Delete this commitment? This cannot be undone.')){try{await deletePlannerBlock(id);triggerKramHaptic(vibrationEnabled,'success');}catch(error){console.error(error);window.alert('Could not delete the commitment. Please try again.');}}};
+  const confirmDoubleTapDelete=(key:string)=>{const now=Date.now();const pending=pendingDeleteRef.current;if(pending?.key===key&&pending.expires>=now){pendingDeleteRef.current=null;return true;}pendingDeleteRef.current={key,expires:now+5000};const armed=window.confirm('This action cannot be undone. Tap OK, then tap Delete again within 5 seconds to continue.');if(!armed){pendingDeleteRef.current=null;return false;}return false;};
+  const handleDeleteTask=async(id:string)=>{if(!confirmDoubleTapDelete('task:'+id))return;if(!window.confirm('Delete this task permanently? This cannot be undone.'))return;try{await deletePlannerTask(id);triggerKramHaptic(vibrationEnabled,'success');}catch(error){console.error(error);window.alert('Could not delete the task. Please try again.');}};
+  const handleDeleteHabit=async(id:string)=>{const habit=habits.find(h=>h.id===id);if(!confirmDoubleTapDelete('habit:'+id))return;if(!window.confirm('Delete '+(habit?.name||'this habit')+' permanently? Its habit history and check-ins may also be removed. This cannot be undone.'))return;try{await deletePlannerHabit(id);triggerKramHaptic(vibrationEnabled,'success');}catch(error){console.error(error);window.alert('Could not delete the habit. Please try again.');}};
+  const handleDeleteBlock=async(id:string)=>{if(!confirmDoubleTapDelete('commitment:'+id))return;if(!window.confirm('Delete this commitment permanently? This cannot be undone.'))return;try{await deletePlannerBlock(id);triggerKramHaptic(vibrationEnabled,'success');}catch(error){console.error(error);window.alert('Could not delete the commitment. Please try again.');}};
   const toggleBlockDay=(day:number)=>setBlockDays(current=>current.includes(day)?current.filter(d=>d!==day):[...current,day].sort());
   const openNewTaskAt=(time:string)=>{openNewTask(selectedDate);setDueTime(time);};
   const placeTaskAt=async(taskId:string,time:string)=>{
@@ -477,7 +479,7 @@ export default function App() {
       <div className="brand"><img className="brand-icon" src="/kram-icon.svg" alt="KRAM"/><div><strong>KRAM</strong><span>PERSONAL PLANNER</span></div></div>
       <div className="workspace-label">WORKSPACE</div>
       <nav>{navItems.map(([id,label,Icon])=><button key={id} className={tab===id?'nav-item active':'nav-item'} onClick={()=>setTab(id)}><Icon size={19}/><span>{label}</span>{id==='tasks'&&<small>{tasks.filter(t=>!t.completed).length}</small>}</button>)}</nav>
-      <div className="sidebar-bottom"><div className="user-chip"><div className="avatar">{(user.displayName||user.email||'U').charAt(0).toUpperCase()}</div><div className="user-details"><strong>{user.displayName||'My planner'}</strong><span>{user.email}</span></div><button className="icon-button" title="Sign out" onClick={()=>signOut(auth)}><LogOut size={17}/></button></div></div>
+      <div className="sidebar-bottom"><div className="user-chip"><div className="avatar">{(user.displayName||user.email||'U').charAt(0).toUpperCase()}</div><div className="user-details"><strong>{user.displayName||'My planner'}</strong><span>{user.email}</span></div><button className="icon-button" title="Sign out" onClick={()=>{if(window.confirm('Sign out of KRAM? Your synced planner data will remain in your account.'))void signOut(auth);}}><LogOut size={17}/></button></div></div>
     </aside>
     <main className="main-area">
       <header className="topbar"><button className="mobile-brand" onClick={()=>setMobileMenu(!mobileMenu)}><Menu size={20}/><img src="/kram-icon.svg" alt=""/><b>KRAM</b></button><div className="breadcrumb">My workspace <span>/</span> <strong>{navItems.find(n=>n[0]===tab)?.[1]}</strong></div><div className="top-actions"><span className={syncError?"sync-label sync-error":"sync-label"}><span className="sync-dot"/>{syncError?"Sync issue":"Synced"}</span><button className="icon-button" onClick={()=>setAlertsOpen(true)} title="Reminder settings"><Bell size={18}/></button><button className="icon-button theme-button" onClick={()=>setDark(!dark)} title="Toggle theme">{dark?<Sun size={18}/>:<Moon size={18}/>}</button><button className="icon-button mobile-logout" onClick={()=>signOut(auth)} title="Sign out"><LogOut size={18}/></button></div></header>
