@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type CSSProperties, type FormEvent } from
 import { Capacitor } from '@capacitor/core';
 import { App as CapacitorApp } from '@capacitor/app';
 import { FileTransfer } from '@capacitor/file-transfer';
+import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { KramInstaller } from './lib/kramInstaller';
 import { LocalNotifications } from '@capacitor/local-notifications';
@@ -39,7 +40,10 @@ const minutesToTime = (value:number) => `${String(Math.floor(value/60)).padStart
 const displayTime = (value:string) => new Date(`2000-01-01T${value}:00`).toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'});
 const priorityRank = (value:Task['priority']) => value==='High'?0:value==='Medium'?1:2;
 const playReminderAlert = (sound:boolean,vibration:boolean) => {
-  if (vibration && 'vibrate' in navigator) navigator.vibrate([180,90,180]);
+  if (vibration) {
+    if (Capacitor.isNativePlatform()) void Haptics.vibrate({duration:360}).catch(error=>console.warn('KRAM native reminder haptic unavailable',error));
+    else if (typeof navigator!=='undefined' && typeof navigator.vibrate==='function') navigator.vibrate([180,90,180]);
+  }
   if (!sound) return;
   try {
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
@@ -63,7 +67,20 @@ const playReminderAlert = (sound:boolean,vibration:boolean) => {
     console.warn('KRAM alert sound unavailable',error);
   }
 };
-const triggerKramHaptic = (enabled:boolean,kind:'light'|'success'|'warning'='light') => { if(!enabled||typeof navigator==='undefined'||typeof navigator.vibrate!=='function')return; const pattern=kind==='success'?[18,35,24]:kind==='warning'?[35,35,35]:12; navigator.vibrate(pattern); };
+const triggerKramHaptic = (enabled:boolean,kind:'light'|'success'|'warning'='light') => {
+  if(!enabled)return;
+  if(Capacitor.isNativePlatform()){
+    const action=kind==='light'
+      ? Haptics.impact({style:ImpactStyle.Light})
+      : Haptics.notification({type:kind==='success'?NotificationType.Success:NotificationType.Warning});
+    void action.catch(error=>console.warn('KRAM native haptic unavailable',error));
+    return;
+  }
+  if(typeof navigator!=='undefined'&&typeof navigator.vibrate==='function'){
+    const pattern=kind==='success'?[18,35,24]:kind==='warning'?[35,35,35]:12;
+    navigator.vibrate(pattern);
+  }
+};
 const notificationId = (value:string) => { let hash=0; for(let i=0;i<value.length;i++) hash=((hash<<5)-hash+value.charCodeAt(i))|0; return Math.abs(hash)||1; };
 const reminderDate = (date:string,time:string,minutesBefore:number) => { const value=new Date(date+'T'+time+':00'); value.setMinutes(value.getMinutes()-minutesBefore); return value; };
 const isTaskOverdue = (task:Task, referenceDate=todayKey(), now=new Date()) => {
@@ -196,7 +213,6 @@ export default function App() {
     finally{setUpdateBusy(false);}
   };
 
-  useEffect(()=>{const tap=(event:MouseEvent)=>{if(!vibrationEnabled||!('vibrate' in navigator))return;const target=event.target as HTMLElement|null;if(target?.closest('button,[role="button"]'))navigator.vibrate(12);};document.addEventListener('click',tap,true);return()=>document.removeEventListener('click',tap,true);},[vibrationEnabled]);
   useEffect(() => { const timer=window.setInterval(()=>setClockNow(new Date()),30000); return ()=>window.clearInterval(timer); },[]);
   useEffect(()=>{if(Capacitor.isNativePlatform()||!notificationsEnabled||!('Notification' in window)||Notification.permission!=='granted')return;const check=()=>{const now=new Date();const today=dateKey(now);const currentMinute=now.getHours()*60+now.getMinutes();const notify=(key:string,titleText:string,body:string)=>{if(localStorage.getItem(key)==='sent')return;localStorage.setItem(key,'sent');const options={body,icon:'/kram-icon.svg',tag:key};if('serviceWorker' in navigator){navigator.serviceWorker.ready.then(registration=>registration.showNotification(titleText,options)).catch(error=>{console.warn('KRAM service-worker notification failed',error);});}else{try{new Notification(titleText,options);}catch(error){console.warn('KRAM notification failed',error);}}playReminderAlert(soundEnabled,vibrationEnabled);};tasks.filter(t=>!t.completed&&t.dueDate===today&&!!t.dueTime).forEach(t=>{const at=timeToMinutes(t.dueTime!)-(t.reminderMinutesBefore??10);if(currentMinute===at)notify('KRAM-reminder-task-'+t.id+'-'+today,'Task reminder',t.title+' is coming up.');});habits.filter(h=>!!h.reminderTime).forEach(h=>{const at=timeToMinutes(h.reminderTime!)-(h.reminderMinutesBefore??10);if(currentMinute===at)notify('KRAM-reminder-habit-'+h.id+'-'+today,'Habit reminder','Time to work on '+h.name+'.');});};check();const timer=window.setInterval(check,15000);return()=>window.clearInterval(timer);},[notificationsEnabled,soundEnabled,vibrationEnabled,tasks,habits]);
 
