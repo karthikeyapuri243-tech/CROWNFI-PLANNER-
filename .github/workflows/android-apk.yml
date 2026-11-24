@@ -117,8 +117,8 @@ jobs:
           content = gradle.read_text()
           if "kramStableDebug" not in content:
               content, count = re.subn(
-                  r"(android\\s*\\{)",
-                  r'''\\1
+                  r"(android\s*\{)",
+                  r'''\1
               signingConfigs {
                   kramStableDebug {
                       storeFile file(System.getenv("HOME") + "/.android/debug.keystore")
@@ -132,12 +132,12 @@ jobs:
               )
               if count != 1:
                   raise SystemExit("Could not insert stable KRAM signing configuration")
-          if not re.search(r"buildTypes\\s*\\{", content):
+          if not re.search(r"buildTypes\s*\{", content):
               raise SystemExit("Could not find Android buildTypes block")
-          if not re.search(r"debug\\s*\\{[^}]*kramStableDebug", content, re.S):
+          if not re.search(r"debug\s*\{[^}]*kramStableDebug", content, re.S):
               content, count = re.subn(
-                  r"(buildTypes\\s*\\{)",
-                  r"\\1\\n        debug {\\n            signingConfig signingConfigs.kramStableDebug\\n        }",
+                  r"(buildTypes\s*\{)",
+                  r"\1\n        debug {\n            signingConfig signingConfigs.kramStableDebug\n        }",
                   content,
                   count=1
               )
