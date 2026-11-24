@@ -580,3 +580,39 @@ body { letter-spacing:-.012em; }
 .gita-wisdom-meaning{position:relative;z-index:1;font-size:13px;line-height:1.6;margin:0 0 8px;max-width:760px}
 .gita-wisdom-reference{position:relative;z-index:1;color:var(--green);font-size:10px;font-weight:700}
 @media(max-width:640px){.gita-wisdom-card{padding:17px 16px 16px;margin-bottom:19px;border-radius:14px}.gita-wisdom-mark{width:35px;height:35px}.gita-wisdom-verse{font-size:19px;margin-top:14px}.gita-wisdom-meaning{font-size:12px}.gita-wisdom-daily{font-size:7px}}
+
+/* KRAM usability and accessibility refinement */
+.form-intro{margin:-5px 0 2px;color:var(--muted);font-size:12px;line-height:1.6}
+.modal-subtitle{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
+.form-section-label{display:flex;align-items:center;gap:9px;margin:8px 0 0;padding-top:10px;border-top:1px solid var(--line);font-size:10px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--green)}
+.form-section-label:first-of-type{border-top:0;padding-top:0}
+.task-form-card,.habit-form-card{width:min(100%,520px);gap:13px;padding:25px}
+.modal-card label{font-size:12px;gap:8px;line-height:1.4}
+.modal-card input,.modal-card textarea,.modal-card select{min-height:46px;padding:12px 13px;font-size:14px;line-height:1.35;border-radius:11px}
+.modal-card textarea{min-height:88px}
+.modal-card input:focus-visible,.modal-card textarea:focus-visible,.modal-card select:focus-visible{outline:3px solid color-mix(in srgb,var(--green) 28%,transparent);outline-offset:2px}
+.emoji-picker{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:7px}
+.emoji-choice{min-width:0;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--bg);font-size:20px;display:grid;place-items:center;cursor:pointer}
+.emoji-choice.selected{background:var(--green-soft);border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
+.modal-actions{position:sticky;bottom:-25px;padding:13px 0 0;margin:5px 0 -4px;background:var(--surface);border-top:1px solid var(--line);z-index:2}
+.modal-actions .primary-button,.modal-actions .secondary-button{min-height:44px;padding-inline:20px}
+.sign-out-button{color:#a94a42;border-color:color-mix(in srgb,#a94a42 30%,var(--line))}
+.sign-out-button:hover{background:color-mix(in srgb,#a94a42 8%,var(--surface))}
+button:focus-visible,a:focus-visible,[role="button"]:focus-visible{outline:3px solid color-mix(in srgb,var(--green) 42%,transparent);outline-offset:3px}
+button:disabled{cursor:not-allowed;opacity:.55}
+.icon-button{min-width:40px;min-height:40px}
+.mobile-menu-footer{display:grid;gap:4px;padding:14px 13px;border-top:1px solid var(--line);color:var(--muted);font-size:10px}
+.mobile-menu-footer strong{font-size:11px;color:var(--text);overflow-wrap:anywhere}
+@media(max-width:640px){
+ .task-form-card,.habit-form-card{width:100%;padding:21px 18px max(18px,env(safe-area-inset-bottom));gap:13px;max-height:calc(92dvh - env(safe-area-inset-top))}
+ .modal-backdrop{align-items:end;padding:0}
+ .modal-card{border-radius:22px 22px 0 0;border-bottom:0}
+ .modal-actions{bottom:-18px;padding-bottom:max(10px,env(safe-area-inset-bottom))}
+ .modal-actions .primary-button{flex:1}
+ .modal-actions .secondary-button{min-width:100px}
+ .emoji-picker{grid-template-columns:repeat(8,minmax(0,1fr));gap:5px}
+ .emoji-choice{min-height:44px;font-size:18px}
+ .form-two{gap:10px}
+ .modal-card input,.modal-card textarea,.modal-card select{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){.emoji-choice{transition:none}}
