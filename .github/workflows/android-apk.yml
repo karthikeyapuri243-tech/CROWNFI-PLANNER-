@@ -86,7 +86,7 @@ jobs:
           start = content.index("defaultConfig")
           end = content.index("\n    }", start)
           block = content[start:end]
-          block, code_count = re.subn(r"versionCode\s+\\d+", f"versionCode {version_code}", block, count=1)
+          block, code_count = re.subn(r"versionCode\s+\d+", f"versionCode {version_code}", block, count=1)
           block, name_count = re.subn(r'versionName\s+"[^"]+"', f'versionName "{version}"', block, count=1)
           if code_count != 1 or name_count != 1:
               raise SystemExit("Could not safely set Android versionCode/versionName in app/build.gradle")
@@ -103,7 +103,7 @@ jobs:
             exit 1
           fi
           mkdir -p "$HOME/.android"
-          printf '%s' "$KRAM_DEBUG_KEYSTORE_BASE64" | tr -d '\\r\n\\t ' | base64 --decode > "$HOME/.android/debug.keystore"
+          printf '%s' "$KRAM_DEBUG_KEYSTORE_BASE64" | tr -d '\r\n\t ' | base64 --decode > "$HOME/.android/debug.keystore"
           chmod 600 "$HOME/.android/debug.keystore"
       - name: Build installable debug APK
         run: |
