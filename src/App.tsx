@@ -70,7 +70,7 @@ const getLatestKramRelease = async () => {
   if(!response.ok)throw new Error('GitHub release check failed ('+response.status+').');
   const release=await response.json();
   const version=String(release.tag_name||'').replace(/^v/i,'');
-  if(!/^\\d+\\.\\d+\\.\\d+$/.test(version))throw new Error('The latest KRAM release has an invalid version.');
+  if(!/^\d+\.\d+\.\d+$/.test(version))throw new Error('The latest KRAM release has an invalid version.');
   const apk=Array.isArray(release.assets)?release.assets.find((asset:any)=>asset.name==='KRAM-'+version+'.apk'):null;
   if(!apk?.browser_download_url)throw new Error('The latest KRAM release does not contain its APK file.');
   const installed=await CapacitorApp.getInfo();
