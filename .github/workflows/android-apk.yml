@@ -2,6 +2,12 @@ name: Build KRAM Android APK
 
 on:
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Optional release version, for example 1.0.1. Leave empty for a test build.'
+        required: false
+        type: string
+        default: ''
   push:
     branches: [main]
     paths:
@@ -12,6 +18,9 @@ on:
       - 'vite.config.ts'
       - 'capacitor.config.ts'
       - '.github/workflows/android-apk.yml'
+
+permissions:
+  contents: write
 
 jobs:
   build-android:
@@ -58,6 +67,33 @@ jobs:
           PY
       - name: Sync native plugins and web assets
         run: npx cap sync android
+      - name: Set Android version for a release
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.release_version != '' }}
+        env:
+          RELEASE_VERSION: ${{ inputs.release_version }}
+        run: |
+          python3 - <<'PY'
+          import os, re
+          from pathlib import Path
+          version = os.environ["RELEASE_VERSION"].strip()
+          match = re.fullmatch(r"(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)", version)
+          if not match:
+              raise SystemExit("Release version must use MAJOR.MINOR.PATCH format, for example 1.0.1")
+          major, minor, patch = map(int, match.groups())
+          version_code = major * 1000000 + minor * 1000 + patch
+          gradle = Path("android/app/build.gradle")
+          content = gradle.read_text()
+          start = content.index("defaultConfig")
+          end = content.index("\\n    }", start)
+          block = content[start:end]
+          block, code_count = re.subn(r"versionCode\\s+\\d+", f"versionCode {version_code}", block, count=1)
+          block, name_count = re.subn(r'versionName\\s+"[^"]+"', f'versionName "{version}"', block, count=1)
+          if code_count != 1 or name_count != 1:
+              raise SystemExit("Could not safely set Android versionCode/versionName in app/build.gradle")
+          gradle.write_text(content[:start] + block + content[end:])
+          Path("KRAM-RELEASE-VERSION").write_text(version + "\\n")
+          print(f"Configured KRAM {version} (versionCode {version_code})")
+          PY
       - name: Restore stable Android debug signing key
         env:
           KRAM_DEBUG_KEYSTORE_BASE64: ${{ secrets.KRAM_DEBUG_KEYSTORE_BASE64 }}
@@ -67,16 +103,36 @@ jobs:
             exit 1
           fi
           mkdir -p "$HOME/.android"
-          echo "$KRAM_DEBUG_KEYSTORE_BASE64" | base64 --decode > "$HOME/.android/debug.keystore"
+          printf '%s' "$KRAM_DEBUG_KEYSTORE_BASE64" | tr -d '\\r\\n\\t ' | base64 --decode > "$HOME/.android/debug.keystore"
           chmod 600 "$HOME/.android/debug.keystore"
       - name: Build installable debug APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug
-      - name: Upload APK
+      - name: Prepare versioned APK
+        run: |
+          if [ -f KRAM-RELEASE-VERSION ]; then
+            VERSION="$(cat KRAM-RELEASE-VERSION)"
+          else
+            VERSION="test-${GITHUB_RUN_NUMBER}"
+          fi
+          cp android/app/build/outputs/apk/debug/app-debug.apk "KRAM-${VERSION}.apk"
+          echo "KRAM_APK_FILE=KRAM-${VERSION}.apk" >> "$GITHUB_ENV"
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: KRAM-Android-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: ${{ env.KRAM_APK_FILE }}
           if-no-files-found: error
+      - name: Publish GitHub Release
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.release_version != '' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ inputs.release_version }}
+          name: KRAM v${{ inputs.release_version }}
+          target_commitish: ${{ github.sha }}
+          files: ${{ env.KRAM_APK_FILE }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          make_latest: true
