@@ -6,6 +6,8 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   android: {
     backgroundColor: '#f8fafc',
+    // Keep the WebView content below Android's system status/navigation bars.
+    adjustMarginsForEdgeToEdge: 'auto',
   },
 };
 
