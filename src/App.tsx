@@ -145,9 +145,9 @@ export default function App() {
         finally{await progressListener.remove();}
         apkPath=file.uri;setDownloadedUpdatePath(file.uri);setUpdateProgress(100);
       }
-      const permission=await AppInstallPlugin.canInstallUnknownApps();
-      if(!permission.granted){await AppInstallPlugin.openInstallUnknownAppsSettings();setUpdateMessage('Allow KRAM to install unknown apps in Android settings. Return here and tap Install update again.');return;}
-      await AppInstallPlugin.installApk({filePath:apkPath});
+      const permission=await KramInstaller.canInstallUnknownApps();
+      if(!permission.granted){await KramInstaller.openInstallUnknownAppsSettings();setUpdateMessage('Allow KRAM to install unknown apps in Android settings. Return here and tap Install update again.');return;}
+      await KramInstaller.installApk({filePath:apkPath});
       setUpdateMessage('Android installer opened. Follow the on-screen prompts to update KRAM.');
     }catch(error){console.error('KRAM update installation failed',error);setUpdateMessage('The update could not be installed. Please try again or use the release page.');}
     finally{setUpdateBusy(false);}
