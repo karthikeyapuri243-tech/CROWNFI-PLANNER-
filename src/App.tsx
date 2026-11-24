@@ -109,7 +109,7 @@ const getLatestKramRelease = async () => {
 };
 
 export default function App() {
-  const pendingDeleteRef = useRef<{key:string;expires:number}|null>(null);
+  const pendingDeleteRef = useRef<{key:string}|null>(null);
   const [user,setUser] = useState<User|null>(null);
   const [authLoading,setAuthLoading] = useState(true);
   const [tasks,setTasks] = useState<Task[]>([]);
@@ -391,7 +391,7 @@ export default function App() {
   };
   const openBlockForm=()=>{setEditingBlock(null);setBlockTitle('');setBlockStart('09:00');setBlockEnd('10:00');setBlockRepeat('weekly');setBlockDate(selectedDate);setBlockDays([1,2,3,4,5]);setBlockError('');setBlockOpen(true);};
   const openEditBlock=(block:ScheduleBlock)=>{setEditingBlock(block);setBlockTitle(block.title);setBlockStart(block.startTime);setBlockEnd(block.endTime);setBlockRepeat(block.repeat);setBlockDate(block.date||selectedDate);setBlockDays(block.days||[]);setBlockError('');setBlockOpen(true);};
-  const confirmDoubleTapDelete=(key:string)=>{const now=Date.now();const pending=pendingDeleteRef.current;if(pending?.key===key&&pending.expires>=now){pendingDeleteRef.current=null;return true;}pendingDeleteRef.current={key,expires:now+5000};const armed=window.confirm('This action cannot be undone. Tap OK, then tap Delete again within 5 seconds to continue.');if(!armed){pendingDeleteRef.current=null;return false;}return false;};
+  const confirmDoubleTapDelete=(key:string)=>{const pending=pendingDeleteRef.current;if(pending?.key===key){pendingDeleteRef.current=null;return true;}pendingDeleteRef.current={key};const armed=window.confirm('This action cannot be undone. Tap OK, then tap Delete once more when you are ready. A final confirmation will appear.');if(!armed){pendingDeleteRef.current=null;return false;}return false;};
   const handleDeleteTask=async(id:string)=>{if(!confirmDoubleTapDelete('task:'+id))return;if(!window.confirm('Delete this task permanently? This cannot be undone.'))return;try{await deletePlannerTask(id);triggerKramHaptic(vibrationEnabled,'success');}catch(error){console.error(error);window.alert('Could not delete the task. Please try again.');}};
   const handleDeleteHabit=async(id:string)=>{const habit=habits.find(h=>h.id===id);if(!confirmDoubleTapDelete('habit:'+id))return;if(!window.confirm('Delete '+(habit?.name||'this habit')+' permanently? Its habit history and check-ins may also be removed. This cannot be undone.'))return;try{await deletePlannerHabit(id);triggerKramHaptic(vibrationEnabled,'success');}catch(error){console.error(error);window.alert('Could not delete the habit. Please try again.');}};
   const handleDeleteBlock=async(id:string)=>{if(!confirmDoubleTapDelete('commitment:'+id))return;if(!window.confirm('Delete this commitment permanently? This cannot be undone.'))return;try{await deletePlannerBlock(id);triggerKramHaptic(vibrationEnabled,'success');}catch(error){console.error(error);window.alert('Could not delete the commitment. Please try again.');}};
