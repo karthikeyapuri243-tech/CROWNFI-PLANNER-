@@ -1,7 +1,7 @@
 import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, runTransaction, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
 import { db } from './firebase';
 const TASKS='plannerV2Tasks', HABITS='plannerV2Habits', CHECKINS='plannerV2Checkins', BLOCKS='plannerV2Blocks';
-export function subscribePlannerTasks(userId:string,cb:(items:any[])=>void,onError?:(error:Error)=>void){return onSnapshot(query(collection(db,TASKS),where('userId','==',userId)),s=>cb(s.docs.map(d=>({id:d.id,...d.data()})).sort((a:any,b:any)=>a.dueDate.localeCompare(b.dueDate))),e=>{console.error('KRAM task sync failed:',e);onError?.(e);});}
+export function subscribePlannerTasks(userId:string,cb:(items:any[])=>void,onError?:(error:Error)=>void){return onSnapshot(query(collection(db,TASKS),where('userId','==',userId)),s=>cb(s.docs.filter(d=>d.data().workspace!=='internship').map(d=>({id:d.id,...d.data()})).sort((a:any,b:any)=>(a.dueDate||'').localeCompare(b.dueDate||''))),e=>{console.error('KRAM task sync failed:',e);onError?.(e);});}
 export async function createPlannerTask(userId:string,payload:any){return addDoc(collection(db,TASKS),{...payload,userId,createdAt:new Date().toISOString()});}
 export async function updatePlannerTask(id:string,payload:any){return updateDoc(doc(db,TASKS,id),{...payload,updatedAt:new Date().toISOString()});}
 export async function createRecurringPlannerOccurrence(originalId:string,userId:string,nextDate:string,payload:any){
