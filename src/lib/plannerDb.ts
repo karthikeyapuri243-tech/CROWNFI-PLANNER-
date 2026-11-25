@@ -44,8 +44,7 @@ export async function createPlannerBlock(userId:string,payload:any){return addDo
 export async function updatePlannerBlock(id:string,payload:any){return updateDoc(doc(db,BLOCKS,id),{...payload,updatedAt:new Date().toISOString()});}
 export async function deletePlannerBlock(id:string){return deleteDoc(doc(db,BLOCKS,id));}
 
-const INTERNSHIP_TASKS='plannerV2InternshipTasks';
-export function subscribeInternshipTasks(userId:string,cb:(items:any[])=>void){return onSnapshot(query(collection(db,INTERNSHIP_TASKS),where('userId','==',userId)),s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),e=>console.error('KRAM internship sync failed:',e));}
-export async function createInternshipTask(userId:string,payload:any){return addDoc(collection(db,INTERNSHIP_TASKS),{...payload,userId,createdAt:new Date().toISOString()});}
-export async function updateInternshipTask(id:string,payload:any){return updateDoc(doc(db,INTERNSHIP_TASKS,id),{...payload,updatedAt:new Date().toISOString()});}
-export async function deleteInternshipTask(id:string){return deleteDoc(doc(db,INTERNSHIP_TASKS,id));}
+export function subscribeInternshipTasks(userId:string,cb:(items:any[])=>void){return onSnapshot(query(collection(db,TASKS),where('userId','==',userId)),s=>cb(s.docs.filter(d=>d.data().workspace==='internship').map(d=>({id:d.id,...d.data()}))),e=>console.error('KRAM internship sync failed:',e));}
+export async function createInternshipTask(userId:string,payload:any){return addDoc(collection(db,TASKS),{...payload,workspace:'internship',userId,createdAt:new Date().toISOString()});}
+export async function updateInternshipTask(id:string,payload:any){return updateDoc(doc(db,TASKS,id),{...payload,updatedAt:new Date().toISOString()});}
+export async function deleteInternshipTask(id:string){return deleteDoc(doc(db,TASKS,id));}
