@@ -616,3 +616,15 @@ button:disabled{cursor:not-allowed;opacity:.55}
  .modal-card input,.modal-card textarea,.modal-card select{font-size:16px}
 }
 @media(prefers-reduced-motion:reduce){.emoji-choice{transition:none}}
+
+
+/* Dashboard shows progress across the whole planner */
+.dashboard-all-progress{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 20px}
+.dashboard-all-progress>div{display:grid;gap:5px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.dashboard-all-progress span{font-size:9px;font-weight:800;letter-spacing:.7px;color:var(--muted)}
+.dashboard-all-progress strong{font:800 22px Manrope;color:var(--text)}
+.task-event-span{min-height:42px}
+.task-event-span .timetable-event-main strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.task-row.completed{animation:kram-task-done .28s ease-out}
+@keyframes kram-task-done{0%{transform:scale(1)}45%{transform:scale(1.012)}100%{transform:scale(1)}}
+@media(max-width:640px){.dashboard-all-progress{gap:6px}.dashboard-all-progress>div{padding:10px 8px}.dashboard-all-progress span{font-size:7px;letter-spacing:.35px}.dashboard-all-progress strong{font-size:19px}.task-event-span{min-height:40px}}
