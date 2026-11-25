@@ -9,7 +9,7 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { auth } from './lib/firebase';
 import Auth from './components/Auth';
-import { createPlannerTask, createRecurringPlannerOccurrence, updatePlannerTask, deletePlannerTask, subscribePlannerTasks, createPlannerBlock, updatePlannerBlock, deletePlannerBlock, subscribePlannerBlocks, createPlannerHabit, updatePlannerHabit, deletePlannerHabit, subscribePlannerHabits, setPlannerHabitCheckin, subscribePlannerCheckins } from './lib/plannerDb';
+import { createPlannerTask, createRecurringPlannerOccurrence, updatePlannerTask, deletePlannerTask, deletePlannerTaskSeries, subscribePlannerTasks, createPlannerBlock, updatePlannerBlock, deletePlannerBlock, subscribePlannerBlocks, createPlannerHabit, updatePlannerHabit, deletePlannerHabit, subscribePlannerHabits, setPlannerHabitCheckin, subscribePlannerCheckins } from './lib/plannerDb';
 import { Bell, CalendarDays, CalendarRange, Check, CheckCircle2, ChevronLeft, ChevronRight, Circle, Clock3, Flame, LayoutDashboard, ListTodo, Menu, Moon, Plus, Search, Sun, Target, Trash2, TrendingUp, X, Settings, BellRing, Palette, Smartphone, ShieldCheck } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
