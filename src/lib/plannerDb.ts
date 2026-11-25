@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, onSnapshot, query, runTransaction, setDoc, updateDoc, where } from 'firebase/firestore';
+import { addDoc, collection, deleteDoc, doc, getDocs, onSnapshot, query, runTransaction, setDoc, updateDoc, where, writeBatch } from 'firebase/firestore';
 import { db } from './firebase';
 const TASKS='plannerV2Tasks', HABITS='plannerV2Habits', CHECKINS='plannerV2Checkins', BLOCKS='plannerV2Blocks';
 export function subscribePlannerTasks(userId:string,cb:(items:any[])=>void,onError?:(error:Error)=>void){return onSnapshot(query(collection(db,TASKS),where('userId','==',userId)),s=>cb(s.docs.map(d=>({id:d.id,...d.data()})).sort((a:any,b:any)=>a.dueDate.localeCompare(b.dueDate))),e=>{console.error('KRAM task sync failed:',e);onError?.(e);});}
@@ -22,6 +22,16 @@ export async function createRecurringPlannerOccurrence(originalId:string,userId:
   });
 }
 export async function deletePlannerTask(id:string){return deleteDoc(doc(db,TASKS,id));}
+export async function deletePlannerTaskSeries(userId:string,rootId:string){
+  const snapshot=await getDocs(query(collection(db,TASKS),where('userId','==',userId)));
+  const matches=snapshot.docs.filter(item=>item.id===rootId||item.id.startsWith(rootId+'_'));
+  for(let offset=0;offset<matches.length;offset+=400){
+    const batch=writeBatch(db);
+    matches.slice(offset,offset+400).forEach(item=>batch.delete(item.ref));
+    await batch.commit();
+  }
+  return matches.length;
+}
 export function subscribePlannerHabits(userId:string,cb:(items:any[])=>void){return onSnapshot(query(collection(db,HABITS),where('userId','==',userId)),s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),e=>console.error(e));}
 export async function createPlannerHabit(userId:string,name:string,settings:any={}){return addDoc(collection(db,HABITS),{userId,name,emoji:settings.emoji||'✦',trackingType:settings.trackingType||'check',targetValue:settings.targetValue||0,unit:settings.unit||'',reminderTime:settings.reminderTime||null,reminderMinutesBefore:settings.reminderMinutesBefore??10,allowedSkipsPerWeek:Math.max(0,Math.min(7,Number(settings.allowedSkipsPerWeek??1))),createdAt:new Date().toISOString()});}
 export async function updatePlannerHabit(id:string,payload:any){return updateDoc(doc(db,HABITS,id),{...payload,updatedAt:new Date().toISOString()});}
