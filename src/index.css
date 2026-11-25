@@ -814,3 +814,47 @@ button:active{transform:scale(.975)}
 
 .internship-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}.internship-summary>div{display:grid;gap:7px;padding:18px 20px;border:1px solid var(--border-color,rgba(128,128,128,.2));border-radius:16px;background:var(--card-bg,rgba(128,128,128,.05))}.internship-summary span{font-size:10px;letter-spacing:.12em;font-weight:700;opacity:.65}.internship-summary strong{font-size:27px;font-weight:650}.internship-search{margin:16px 0}.internship-work-list{display:grid;gap:10px}.internship-work-card{display:flex;align-items:center;gap:12px;padding:15px 14px;border:1px solid var(--border-color,rgba(128,128,128,.18));border-radius:15px;background:var(--card-bg,rgba(128,128,128,.04));min-width:0}.internship-work-card.completed{opacity:.68}.internship-work-main{display:grid;gap:7px;flex:1;min-width:0;text-align:left;background:transparent;border:0;color:inherit;cursor:pointer;padding:2px}.internship-work-main strong{font-size:14px;overflow-wrap:anywhere}.internship-work-main>span{font-size:12px;opacity:.72;white-space:pre-wrap;overflow-wrap:anywhere}.internship-work-main small{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:11px;opacity:.75}.internship-work-main em{font-style:normal;color:#d97757;font-weight:800;letter-spacing:.06em}.internship-work-card.completed .internship-work-main strong{text-decoration:line-through}.internship-form-card{max-width:520px}
 @media(max-width:600px){.internship-summary{gap:8px}.internship-summary>div{padding:13px 10px;border-radius:12px}.internship-summary strong{font-size:23px}.internship-summary span{font-size:9px}.internship-work-card{gap:8px;padding:12px 9px}}
+
+
+/* Distinct workspace switcher and Internship Desk visual system */
+.workspace-switch{display:flex;align-items:center;gap:4px;padding:4px;border:1px solid var(--border-color,rgba(128,128,128,.22));border-radius:999px;background:var(--card-bg,rgba(128,128,128,.06));margin:0 auto 0 22px;flex-shrink:0}
+.workspace-switch button{display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 13px;border:0;border-radius:999px;background:transparent;color:var(--text-secondary,var(--text-color));font:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s,box-shadow .2s}
+.workspace-switch button.selected{background:var(--accent-color,#202a35);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.13)}
+.internship-mode{--internship-ink:#172b3a;--internship-muted:#647887;--internship-accent:#167d83;--internship-line:#d9e5e7;--internship-paper:#f2f7f7;--internship-card:#ffffff;background:var(--internship-paper)}
+.internship-mode .sidebar{background:#142b39;color:#edf5f5;border-right:1px solid rgba(255,255,255,.08)}
+.internship-mode .sidebar .brand span,.internship-mode .sidebar .workspace-label,.internship-mode .sidebar .user-details span{color:#a9c0c8}
+.internship-mode .sidebar .nav-item{color:#c1d3d8}
+.internship-mode .sidebar .nav-item.active{background:rgba(80,190,184,.17);color:#fff;border-color:rgba(105,211,202,.2)}
+.internship-mode .sidebar .nav-item.active svg{color:#76d5ca}
+.internship-mode .main-area{background:linear-gradient(145deg,#f2f7f7 0%,#edf4f5 58%,#f7f9f8 100%)}
+.internship-mode .topbar{background:rgba(248,252,252,.88);border-bottom:1px solid #dce8e9}
+.internship-mode .breadcrumb{color:#71848c}
+.internship-mode .breadcrumb strong{color:#1b3542}
+.internship-mode .workspace-switch{background:#e7eff0;border-color:#d4e1e2}
+.internship-mode .workspace-switch button{color:#536a73}
+.internship-mode .workspace-switch button.selected{background:#173746;color:#fff}
+.internship-mode .page-content{max-width:1120px}
+.internship-mode .page-heading{padding:26px 28px;border:1px solid #dce8e9;border-radius:22px;background:linear-gradient(120deg,#fff 0%,#edf7f6 100%);box-shadow:0 12px 34px rgba(29,68,78,.06)}
+.internship-mode .page-heading .eyebrow{color:#16817e;letter-spacing:.16em}
+.internship-mode .page-heading h1{color:#183442;font-size:clamp(30px,4vw,42px);letter-spacing:-.045em}
+.internship-mode .page-heading p{color:#647984}
+.internship-mode .primary-button{background:#167d83;box-shadow:0 7px 18px rgba(22,125,131,.18)}
+.internship-mode .internship-summary{gap:16px;margin:20px 0}
+.internship-mode .internship-summary>div{position:relative;overflow:hidden;min-height:112px;padding:20px 22px;border:1px solid #dce8e9;border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(29,68,78,.045)}
+.internship-mode .internship-summary>div:after{content:"";position:absolute;right:-18px;top:-24px;width:78px;height:78px;border-radius:50%;background:rgba(22,125,131,.07)}
+.internship-mode .internship-summary span{color:#71858c;opacity:1}
+.internship-mode .internship-summary strong{color:#183442;font-size:32px}
+.internship-mode .internship-search{min-height:48px;border:1px solid #dce8e9;border-radius:13px;background:#fff;color:#71858c}
+.internship-mode .internship-search input{color:#183442}
+.internship-mode .filter-pill{border:1px solid #dce8e9;background:#fff;color:#5e737c}
+.internship-mode .filter-pill.selected{background:#173746;border-color:#173746;color:#fff}
+.internship-mode .internship-work-list{gap:12px}
+.internship-mode .internship-work-card{padding:17px 18px;border:1px solid #dce8e9;border-radius:16px;background:#fff;box-shadow:0 5px 18px rgba(29,68,78,.035);transition:transform .18s,box-shadow .18s}
+.internship-mode .internship-work-card:hover{transform:translateY(-2px);box-shadow:0 12px 25px rgba(29,68,78,.08)}
+.internship-mode .internship-work-main strong{color:#203b48;font-size:15px}
+.internship-mode .internship-work-main>span,.internship-mode .internship-work-main small{color:#70838a}
+.internship-mode .internship-work-card .task-check{border-color:#b8cbcd;color:#167d83}
+.internship-mode .internship-work-card .task-check:has(svg[data-lucide="check"]){background:#167d83}
+.internship-mode .internship-form-card{border:1px solid #dce8e9;border-radius:20px}
+@media(max-width:900px){.workspace-switch{margin-left:10px}.workspace-switch button{padding:7px 9px;font-size:11px}}
+@media(max-width:600px){.workspace-switch{margin:0 auto 0 8px;gap:2px;padding:3px}.workspace-switch button{gap:4px;padding:7px 8px;font-size:10px}.workspace-switch button svg{width:13px;height:13px}.internship-mode .page-heading{padding:18px 15px;border-radius:17px;gap:14px}.internship-mode .page-heading h1{font-size:29px}.internship-mode .internship-summary{gap:8px}.internship-mode .internship-summary>div{min-height:90px;padding:14px 10px}.internship-mode .internship-summary strong{font-size:26px}.internship-mode .internship-work-card{padding:13px 10px}}
