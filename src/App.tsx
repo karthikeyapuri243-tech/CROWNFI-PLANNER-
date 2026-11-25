@@ -298,7 +298,7 @@ export default function App() {
   const week = useMemo(()=>Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-6+i);const key=dateKey(d);const day=tasks.filter(t=>t.dueDate===key);return {key,label:d.toLocaleDateString('en-IN',{weekday:'short'}),total:day.length,done:day.filter(t=>t.completed).length};}),[tasks]);
 
   const openNewTask = (date='') => {setEditing(null);setTitle('');setNotes('');setDueDate('');setScheduleDate(date||selectedDate);setDueTime('');setDurationMinutes(30);setReminderMinutesBefore(-1);setPriority('Medium');setRepeat('none');setTaskError('');setTaskOpen(true);};
-  const openEditTask = (t:Task) => {setEditing(t);setTitle(t.title);setNotes(t.notes||'');setDueDate(t.dueDate||'');setScheduleDate(t.scheduledDate||t.dueDate||selectedDate);setDueTime(t.dueTime||'');setDurationMinutes(t.durationMinutes||60);setReminderMinutesBefore(t.reminderMinutesBefore??0);setPriority(t.priority);setRepeat(t.repeat||'none');setTaskError('');setTaskOpen(true);};
+  const openEditTask = (t:Task) => {setEditing(t);setTitle(t.title);setNotes(t.notes||'');setDueDate(t.dueDate||'');setScheduleDate(t.scheduledDate||(t.dueTime?t.dueDate:selectedDate)||selectedDate);setDueTime(t.dueTime||'');setDurationMinutes(t.durationMinutes||60);setReminderMinutesBefore(t.reminderMinutesBefore??0);setPriority(t.priority);setRepeat(t.repeat||'none');setTaskError('');setTaskOpen(true);};
   const saveTask = async (e:FormEvent) => {
     e.preventDefault();
     if (savingTask) return;
