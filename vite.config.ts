@@ -8,6 +8,8 @@ export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss(), VitePWA({
       registerType: 'autoUpdate',
+      // Capacitor manages its own bundled web assets; do not inject a PWA worker into Android.
+      injectRegister: false,
       includeAssets: ['kram-icon.svg'],
       manifest: {
         name: 'KRAM Personal Planner',
