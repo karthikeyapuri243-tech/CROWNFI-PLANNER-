@@ -292,7 +292,7 @@ body { letter-spacing:-.012em; }
 .timetable-event-actions{display:flex!important;flex-direction:row;align-items:center;gap:3px;flex:0 0 auto}.timetable-event-actions button{display:grid;place-items:center;width:28px;height:28px;border-radius:7px}.timetable-event-actions button:hover{background:var(--surface)}.timetable-complete{display:grid;place-items:center;width:28px;height:28px;border:0;background:transparent;color:var(--muted);cursor:pointer;flex:0 0 auto}.task-event.completed{opacity:.62}.task-event.completed .timetable-event-main strong{text-decoration:line-through;color:var(--muted)}.task-row-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}
 
 /* True duration-based commitment blocks spanning the hourly timeline */
-.full-day-timeline{position:relative;--hour-height:78px}
+.full-day-timeline{position:relative;--hour-height:120px}
 .timetable-hour{height:var(--hour-height);min-height:var(--hour-height)}
 .timetable-hour-content{position:relative}
 .fixed-event-span{position:absolute;left:74px;right:14px;z-index:4;min-height:0;overflow:hidden;align-items:flex-start;padding:11px 12px;border-radius:11px;box-shadow:0 2px 8px rgba(25,55,35,.08)}
@@ -300,7 +300,7 @@ body { letter-spacing:-.012em; }
 .fixed-event-span strong{font-size:12px}
 .fixed-event-span span{font-size:10px}
 .fixed-event-span .timetable-event-actions{align-self:flex-start}
-@media(max-width:640px){.full-day-timeline{--hour-height:76px}.fixed-event-span{left:55px;right:9px;padding:9px 8px}.fixed-event-span strong{font-size:10px}.fixed-event-span span{font-size:9px}.fixed-event-span .timetable-event-actions button{width:24px;height:24px}}
+@media(max-width:640px){.full-day-timeline{--hour-height:112px}.fixed-event-span{left:55px;right:9px;padding:9px 8px}.fixed-event-span strong{font-size:10px}.fixed-event-span span{font-size:9px}.fixed-event-span .timetable-event-actions button{width:24px;height:24px}}
 
 
 /* KRAM timetable refinement: align exact hours and normalize type scale */
@@ -623,8 +623,19 @@ button:disabled{cursor:not-allowed;opacity:.55}
 .dashboard-all-progress>div{display:grid;gap:5px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
 .dashboard-all-progress span{font-size:9px;font-weight:800;letter-spacing:.7px;color:var(--muted)}
 .dashboard-all-progress strong{font:800 22px Manrope;color:var(--text)}
-.task-event-span{min-height:42px}
+.task-event-span{min-height:0}
 .task-event-span .timetable-event-main strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .task-row.completed{animation:kram-task-done .28s ease-out}
 @keyframes kram-task-done{0%{transform:scale(1)}45%{transform:scale(1.012)}100%{transform:scale(1)}}
-@media(max-width:640px){.dashboard-all-progress{gap:6px}.dashboard-all-progress>div{padding:10px 8px}.dashboard-all-progress span{font-size:7px;letter-spacing:.35px}.dashboard-all-progress strong{font-size:19px}.task-event-span{min-height:40px}}
+@media(max-width:640px){.dashboard-all-progress{gap:6px}.dashboard-all-progress>div{padding:10px 8px}.dashboard-all-progress span{font-size:7px;letter-spacing:.35px}.dashboard-all-progress strong{font-size:19px}.task-event-span{min-height:0}}
+
+
+/* Fifteen-minute tasks stay readable without covering the next time slot */
+.task-event-compact{padding:3px 7px!important;gap:5px;align-items:center!important}
+.task-event-compact .timetable-complete{width:23px;height:23px;flex:0 0 23px}
+.task-event-compact .timetable-event-main{justify-content:center;gap:0}
+.task-event-compact .timetable-event-main .timeline-type-tag,
+.task-event-compact .timetable-event-main>span:not(.timeline-type-tag){display:none}
+.task-event-compact .timetable-event-main strong{font-size:10px;line-height:1.2}
+.task-event-compact .timetable-event-actions{display:none}
+@media(max-width:640px){.task-event-compact{padding:2px 5px!important;gap:4px}.task-event-compact .timetable-complete{width:20px;height:20px;flex-basis:20px}.task-event-compact .timetable-event-main strong{font-size:9px}}
