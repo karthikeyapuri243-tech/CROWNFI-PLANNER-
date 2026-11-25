@@ -58,12 +58,17 @@ jobs:
           from pathlib import Path
           manifest = Path("android/app/src/main/AndroidManifest.xml")
           content = manifest.read_text()
-          permission = '    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />'
-          if permission not in content:
-              if "<application" not in content:
-                  raise SystemExit("AndroidManifest.xml has no application element")
-              content = content.replace("<application", permission + "\n    <application", 1)
-              manifest.write_text(content)
+          permissions = [
+              '    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />',
+              '    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />',
+              '    <uses-permission android:name="android.permission.VIBRATE" />',
+          ]
+          if "<application" not in content:
+              raise SystemExit("AndroidManifest.xml has no application element")
+          for permission in permissions:
+              if permission not in content:
+                  content = content.replace("<application", permission + "\n    <application", 1)
+          manifest.write_text(content)
           PY
       - name: Configure Android APK installer support
         run: python3 scripts/configure-kram-updater.py
