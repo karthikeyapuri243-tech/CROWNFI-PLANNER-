@@ -70,3 +70,27 @@ export function subscribeInternshipTasks(userId:string,cb:(items:any[])=>void,on
 export async function createInternshipTask(userId:string,payload:any){return createWithEntry(TASKS,userId,{...payload,workspace:'internship',userId,createdAt:new Date().toISOString()});}
 export async function updateInternshipTask(id:string,payload:any){return withDailyEntry(auth.currentUser?.uid,batch=>batch.update(doc(db,TASKS,id),{...payload,updatedAt:new Date().toISOString()}));}
 export async function deleteInternshipTask(id:string){return deleteDoc(doc(db,TASKS,id));}
+
+export type DeletedPlannerTask = { userId:string; restoreId:string; data:Record<string,any> };
+// Capture the latest server version before deleting. Only standalone items have Undo.
+export async function deletePlannerTaskWithUndo(id:string,userId:string):Promise<DeletedPlannerTask>{
+  if(auth.currentUser?.uid!==userId)throw new Error('Account changed');
+  const original=doc(db,TASKS,id);
+  const restoreId=doc(collection(db,TASKS)).id;
+  const data=await runTransaction(db,async transaction=>{
+    const snapshot=await transaction.get(original);
+    if(!snapshot.exists()||snapshot.data().userId!==userId)throw new Error('Item unavailable');
+    const data=snapshot.data();
+    if((data.repeat&&data.repeat!=='none')||/(?:_\d{4}-\d{2}-\d{2})$/.test(id))throw new Error('Recurring items cannot use Undo');
+    transaction.delete(original);
+    return data;
+  });
+  return {userId,restoreId,data};
+}
+export async function restoreDeletedPlannerTask(item:DeletedPlannerTask){
+  if(auth.currentUser?.uid!==item.userId||item.data.userId!==item.userId)throw new Error('Account changed');
+  // A fresh, preallocated ID avoids overwriting another device's record and makes retries idempotent.
+  const batch=writeBatch(db);
+  batch.set(doc(db,TASKS,item.restoreId),item.data);
+  await batch.commit();
+}

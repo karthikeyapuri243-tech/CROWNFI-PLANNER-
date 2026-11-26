@@ -1673,3 +1673,25 @@ button,input,textarea,select{font-family:inherit}
 .personal-preference-row input[type=checkbox]{width:19px;height:19px;flex:0 0 19px;accent-color:var(--text);cursor:pointer}
 .personal-preference-note{font-size:12px;line-height:1.5;color:var(--muted);margin:10px 0 0}
 @media(max-width:640px){.page-today .personalized-heading h1{font-size:clamp(23px,6.2vw,29px);line-height:1.18}.personal-heading-copy .personal-daily-message{font-size:12px}.personal-name-form{gap:8px}.personal-name-form .settings-copy input{font-size:16px}.personal-name-form .secondary-button{padding:8px 10px}.personal-preference-row .settings-copy strong{font-size:13px}}
+
+/* Phase 1: stacked work empty states, non-obstructive notices, safe dock clearance. */
+.internship-work-list .work-empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;width:100%;min-width:0;min-height:184px;padding:23px 12px;box-sizing:border-box}
+.work-empty-state .empty-icon{flex:none;margin:0 auto 3px}
+.work-empty-state strong,.work-empty-state p{width:100%;max-width:32ch;margin:0;overflow-wrap:anywhere}
+.work-empty-state .secondary-button{display:inline-flex;align-items:center;justify-content:center;flex:none;align-self:center;margin-top:5px;min-height:44px;max-width:100%;white-space:normal}
+.momentum-toast{z-index:44;top:auto;bottom:24px;left:50%;transform:translateX(-50%);width:max-content;max-width:min(calc(100vw - 32px),420px);padding:12px 16px;border:1px solid var(--line);border-radius:15px;box-shadow:0 5px 24px #00000018;backdrop-filter:none;background:var(--surface);color:var(--text);font-weight:550;font-size:13px;white-space:normal;line-height:1.4;animation:kram-toast-in .18s ease-out both}
+.momentum-toast>span{min-width:0;overflow-wrap:anywhere}
+.deletion-notice{pointer-events:auto;gap:10px;padding:7px 9px 7px 15px}
+.undo-delete-button,.notice-close{min-height:44px;min-width:44px;border:0;background:transparent;color:var(--text);border-radius:10px;flex:none;cursor:pointer}
+.undo-delete-button{font-weight:700;padding:0 10px;background:var(--surface2)}
+.notice-close{display:grid;place-items:center;color:var(--muted)}
+.undo-delete-button:disabled,.notice-close:disabled{opacity:.65;cursor:wait}
+.task-row .delete-button,.internship-work-card .delete-button{width:44px;height:44px;min-width:44px;flex:0 0 44px}
+@media(max-width:640px){
+ .page-content{padding-bottom:calc(154px + env(safe-area-inset-bottom,0px));scroll-margin-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+ .main-area{padding-bottom:0}
+ .floating-dock::before{content:'';position:absolute;z-index:-1;pointer-events:none;left:-14px;right:-14px;top:-22px;bottom:calc(-12px - env(safe-area-inset-bottom,0px));background:linear-gradient(to bottom,transparent,var(--bg) 42%);border-radius:0}
+ .momentum-toast{top:auto;bottom:calc(83px + env(safe-area-inset-bottom,0px));max-width:calc(100vw - 24px)}
+ .internship-mode .floating-dock .bottom-nav{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(prefers-reduced-motion:reduce){.momentum-toast{animation:none!important}}
