@@ -1609,3 +1609,15 @@ button,input,textarea,select{font-family:inherit}
 @media(min-width:901px){.entry-streak-card{padding:15px 20px;margin-bottom:18px}.entry-streak-days{gap:8px}.entry-day>span{width:30px;height:30px}}
 @media(max-width:640px){.entry-streak-card{border-radius:18px;padding:12px;gap:9px}.entry-streak-main{gap:8px}.entry-streak-icon{width:34px;height:34px;flex-basis:34px}.entry-streak-main strong{font-size:23px}.entry-streak-label{font-size:11px}.entry-streak-days{gap:3px}.entry-day>span{width:20px;height:22px;border-radius:7px}.entry-streak-status{font-size:10px}}
 @media(max-width:360px){.entry-streak-card{flex-wrap:wrap}.entry-streak-meta{justify-items:start;width:100%}.entry-streak-days{gap:6px}}
+
+
+/* A compact streak counter; full history lives in Progress. */
+.page-today .entry-streak-badge{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 13px;border-radius:999px;background:var(--peach);color:var(--planned-ink,var(--text));flex-shrink:0;min-width:65px;font-variant-numeric:tabular-nums}
+.entry-streak-badge svg{color:#a86438;stroke-width:2}
+.entry-streak-badge.is-logged svg{fill:#d68b54;stroke:#a86438}
+.entry-streak-badge strong{font-size:21px;line-height:1;font-weight:650;letter-spacing:-.03em}
+:root.dark .entry-streak-badge svg{color:#f1b184;stroke:#f1b184}
+:root.dark .entry-streak-badge.is-logged svg{fill:#c77c48}
+.entry-streak-history{margin-top:12px}
+.entry-streak-history .entry-streak-card{margin-bottom:0}
+@media(max-width:640px){.page-today .entry-streak-badge{padding:8px 11px;min-width:59px;gap:5px}.entry-streak-badge strong{font-size:19px}}
