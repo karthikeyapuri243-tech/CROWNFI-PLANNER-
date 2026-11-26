@@ -1657,3 +1657,19 @@ button,input,textarea,select{font-family:inherit}
  .kram-motion-backdrop .entry-sheet .modal-actions button{min-height:46px}
 }
 @media(min-width:1250px){.desktop-planner-grid{grid-template-columns:minmax(280px,0.8fr) minmax(0,1.55fr)}.desktop-planner-grid>.schedule-section{grid-column:2;grid-row:1}.desktop-planner-tools{grid-column:1;grid-row:1}}
+
+
+/* Personalization stays compact, readable and optional on both screen sizes. */
+.personalized-heading{align-items:center}
+.personal-heading-copy{min-width:0;flex:1}
+.personal-heading-copy h1{overflow-wrap:anywhere}
+.personal-heading-copy .personal-daily-message{font-size:13px;color:var(--muted);line-height:1.5;margin-top:5px;font-weight:500}
+.personalization-section .section-heading h2{font-size:19px;font-weight:650}
+.personal-name-form{gap:12px}
+.personal-name-form .settings-copy{min-width:0;display:grid;gap:6px}
+.personal-name-form input{width:100%;min-width:0;max-width:260px;font:inherit;font-size:14px;box-sizing:border-box;color:var(--text);background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.personal-name-form .secondary-button{flex-shrink:0}
+.personal-preference-row{cursor:pointer}
+.personal-preference-row input[type=checkbox]{width:19px;height:19px;flex:0 0 19px;accent-color:var(--text);cursor:pointer}
+.personal-preference-note{font-size:12px;line-height:1.5;color:var(--muted);margin:10px 0 0}
+@media(max-width:640px){.page-today .personalized-heading h1{font-size:clamp(23px,6.2vw,29px);line-height:1.18}.personal-heading-copy .personal-daily-message{font-size:12px}.personal-name-form{gap:8px}.personal-name-form .settings-copy input{font-size:16px}.personal-name-form .secondary-button{padding:8px 10px}.personal-preference-row .settings-copy strong{font-size:13px}}
