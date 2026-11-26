@@ -1471,3 +1471,39 @@ button,input,textarea,select{font-family:inherit}
 :root.dark .entry-hero-someday,:root.dark .entry-hero-work{color:var(--planned-ink)}
 :root.dark .entry-hero-habit{color:var(--lavender-ink)}
 .entry-sheet .entry-title-label input::placeholder{opacity:.85}
+
+
+/* Soft charcoal typography; quicker transitions and less expensive compositing. */
+:root{
+  --text:#323136;
+  --momentum-ink:#35313b;
+  --planned-ink:#3a3430;
+  --habit-ink:#393239;
+  --lavender-ink:#35313b;
+}
+:root.dark{
+  --text:#eae7e5;
+  --momentum-ink:#eae7e5;
+  --planned-ink:#eae7e5;
+  --habit-ink:#eae7e5;
+  --lavender-ink:#eae7e5;
+  --accent-ink:#323136;
+}
+:root:not(.dark) .entry-hero{color:var(--momentum-ink)}
+:root:not(.dark) .entry-hero-someday,:root:not(.dark) .entry-hero-work{color:var(--planned-ink)}
+:root:not(.dark) .entry-hero-habit{color:var(--lavender-ink)}
+.kram-motion-backdrop{backdrop-filter:none;-webkit-backdrop-filter:none;background:#16151b55}
+.sheet-step-content:not([hidden]){animation-duration:.16s}
+.mosaic-bars .mosaic-bar-track i{animation-duration:.3s;animation-delay:0ms}
+.mosaic-bar-track i{transition:height .2s ease}
+.gita-expand{transition:grid-template-rows .2s ease,opacity .15s ease}
+.gita-chevron,.floating-add{transition-duration:.15s}
+.whats-new-backdrop{z-index:92}
+.whats-new-card{max-width:420px;padding:21px;gap:15px}
+.whats-new-card .modal-heading h2{font-size:21px;letter-spacing:-.025em}
+.whats-new-list{display:grid;gap:11px}
+.whats-new-list>div{display:flex;align-items:flex-start;gap:10px;color:var(--text);font-size:14px;line-height:1.45}
+.whats-new-list>div>svg{flex:0 0 16px;margin-top:2px;color:var(--muted)}
+.whats-new-card .modal-actions .primary-button{width:100%;flex:1}
+@media(max-width:640px){.whats-new-card{max-width:100%;padding:17px 18px max(19px,env(safe-area-inset-bottom));border-radius:26px 26px 0 0}}
+@media(prefers-reduced-motion:reduce){.sheet-step-content:not([hidden]),.mosaic-bars .mosaic-bar-track i{animation:none!important}}
