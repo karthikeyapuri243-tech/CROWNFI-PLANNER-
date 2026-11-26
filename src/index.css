@@ -1507,3 +1507,13 @@ button,input,textarea,select{font-family:inherit}
 .whats-new-card .modal-actions .primary-button{width:100%;flex:1}
 @media(max-width:640px){.whats-new-card{max-width:100%;padding:17px 18px max(19px,env(safe-area-inset-bottom));border-radius:26px 26px 0 0}}
 @media(prefers-reduced-motion:reduce){.sheet-step-content:not([hidden]),.mosaic-bars .mosaic-bar-track i{animation:none!important}}
+
+
+/* Two compact summary tiles near the top; momentum has its own section below. */
+.page-today .daily-mosaic.daily-counts{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto;gap:9px;margin:4px 0 20px}
+.daily-counts .mosaic-tile{min-height:105px}
+.page-today .daily-mosaic.momentum-only{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;margin:4px 0 20px}
+.momentum-only .mosaic-progress{grid-row:auto;width:100%;gap:8px}
+.momentum-only .mosaic-bars{height:60px}
+.momentum-only .mosaic-progress>strong{font-size:40px}
+@media(max-width:640px){.daily-counts .mosaic-tile{min-height:94px;padding:12px}.momentum-only .mosaic-progress{padding:13px}}
