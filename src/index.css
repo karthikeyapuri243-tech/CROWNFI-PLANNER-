@@ -1621,3 +1621,39 @@ button,input,textarea,select{font-family:inherit}
 .entry-streak-history{margin-top:12px}
 .entry-streak-history .entry-streak-card{margin-bottom:0}
 @media(max-width:640px){.page-today .entry-streak-badge{padding:8px 11px;min-width:59px;gap:5px}.entry-streak-badge strong{font-size:19px}}
+
+
+/* Separate internship views; use the same compact work records on every device. */
+.work-overview-grid{display:grid;gap:13px;grid-template-columns:minmax(0,1fr)}
+.work-glance{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:15px;min-width:0}
+.work-list-tools{display:grid;gap:8px;margin:14px 0}
+.work-list-tools .internship-search,.work-list-tools .filter-row{margin:0}
+.work-quick-add{margin:0 0 12px}
+.desktop-planner-grid,.desktop-planner-tools{display:contents}
+@media(max-width:900px){.internship-mode .floating-dock .bottom-nav{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* Use a readable laptop canvas instead of edge-to-edge rows. */
+@media(min-width:901px){
+ .page-content{max-width:1180px;padding:27px clamp(22px,3vw,38px) 55px}
+ .page-today .glance-grid{align-items:stretch}
+ .page-today .glance-panel{min-height:115px}
+ .page-today .daily-counts .mosaic-tile{min-height:90px}
+ .page-today .momentum-only .mosaic-bars{height:64px}
+ .page-settings{max-width:940px;margin-inline:auto}
+ .page-settings .settings-section{padding:0;margin-top:26px}
+ .work-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+ .work-glance{padding:18px 20px;min-height:130px}
+ .work-list-tools{grid-template-columns:minmax(190px,1fr) auto;align-items:center;gap:14px;margin:16px 0}
+ .work-list-tools .filter-row{flex-wrap:wrap}
+ .page-internship-todo .internship-work-list,.page-internship-deadlines .internship-work-list{padding:5px 17px}
+ .internship-work-list .empty-state{min-height:105px}
+ .desktop-planner-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+ .desktop-planner-tools{display:grid;gap:14px;min-width:0;align-content:start}
+ .desktop-planner-tools>.content-section,.desktop-planner-tools>.schedule-planner-card,.desktop-planner-grid>.schedule-section{margin:0;min-width:0}
+ .desktop-planner-tools .task-row{flex-wrap:wrap;gap:8px}
+ .desktop-planner-tools .task-row-actions{margin-left:auto}
+ .desktop-planner-tools .schedule-message{font-size:12px;line-height:1.5}
+ .kram-motion-backdrop .entry-sheet{width:min(100%,480px);max-width:480px;padding:24px;gap:15px}
+ .kram-motion-backdrop .entry-sheet .modal-heading h2{font-size:22px}
+ .kram-motion-backdrop .entry-sheet .modal-actions button{min-height:46px}
+}
+@media(min-width:1250px){.desktop-planner-grid{grid-template-columns:minmax(280px,0.8fr) minmax(0,1.55fr)}.desktop-planner-grid>.schedule-section{grid-column:2;grid-row:1}.desktop-planner-tools{grid-column:1;grid-row:1}}
