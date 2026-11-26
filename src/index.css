@@ -1394,3 +1394,33 @@ button,input,textarea,select{font-family:inherit}
 .entry-sheet .modal-actions .primary-button,.entry-sheet .modal-actions .secondary-button{min-height:46px;font-size:13px;border-radius:999px}
 .entry-sheet .modal-actions .primary-button:only-child{width:100%;flex:1}
 @media(max-width:640px){.entry-sheet{padding:16px 16px max(18px,env(safe-area-inset-bottom))}.entry-hero{padding:16px;min-height:144px}.entry-hero-summary{min-height:0;padding:13px}.entry-sheet .sheet-step-content{gap:12px}.entry-sheet .entry-title-label input:not([type="radio"]):not([type="checkbox"]){font-size:22px}}
+
+
+/* Compact capture sheets, keeping the transaction-inspired pastel entry surface. */
+.entry-sheet,.compact-commitment{width:min(100%,420px);gap:10px;padding:17px 18px}
+.entry-sheet .modal-heading,.compact-commitment .modal-heading{margin:0;align-items:center}
+.entry-sheet .modal-heading h2,.compact-commitment .modal-heading h2{font-size:20px;margin:0}
+.entry-sheet .sheet-steps{margin:0;gap:4px}
+.entry-sheet .sheet-steps span{width:21px;height:3px}
+.entry-sheet .sheet-step-content{gap:10px}
+.entry-sheet .entry-hero{flex-direction:row;justify-content:flex-start;align-items:center;gap:11px;min-height:78px;padding:12px;border-radius:17px}
+.entry-sheet .entry-hero-icon{width:32px;height:32px;flex-basis:32px}
+.entry-sheet .entry-title-label{flex:1;min-width:0;gap:3px;font-size:11px}
+.entry-sheet .entry-title-label input:not([type="radio"]):not([type="checkbox"]){font-size:16px;font-weight:500;letter-spacing:-.01em;min-height:32px;padding:3px 0}
+.entry-sheet .entry-title-label input::placeholder{font-size:16px;font-weight:400;opacity:.72}
+.entry-sheet .entry-hero-summary{min-height:0;padding:10px 12px}
+.entry-hero-summary strong{font-size:15px}
+.entry-sheet .entry-segments{padding:3px}
+.entry-sheet .entry-segments button{min-height:35px;padding:6px 10px}
+.entry-sheet .entry-note summary{min-height:36px;padding:7px 0}
+.entry-sheet .entry-options-fields{display:grid;gap:10px;padding:7px 0 4px}
+.entry-sheet .form-section-label{margin:0;padding:0;border:0}
+.entry-sheet .form-two{gap:8px}
+.entry-sheet .modal-actions,.compact-commitment .modal-actions{margin:0;padding-top:5px;gap:6px}
+.entry-sheet .modal-actions button,.compact-commitment .modal-actions button{min-height:43px}
+.entry-sheet .emoji-picker{gap:4px}
+.entry-sheet .emoji-choice{min-width:30px;min-height:34px;padding:4px;font-size:17px}
+.entry-sheet .entry-date-chips button{min-height:32px;padding:5px 12px}
+.entry-sheet .modal-card label,.entry-sheet label,.compact-commitment label{gap:5px;font-size:12px}
+.entry-sheet input:not([type="radio"]):not([type="checkbox"]),.entry-sheet select,.compact-commitment input:not([type="radio"]):not([type="checkbox"]),.compact-commitment select{min-height:42px;padding:8px 10px}
+@media(max-width:640px){.entry-sheet,.compact-commitment{width:100%;max-width:100%;padding:13px 15px max(15px,env(safe-area-inset-bottom));max-height:calc(86dvh - env(safe-area-inset-top))}.entry-sheet .entry-title-label input:not([type="radio"]):not([type="checkbox"]){font-size:16px}.entry-sheet .entry-hero{min-height:72px}.entry-sheet .entry-hero-summary{min-height:0}.entry-sheet .modal-actions .secondary-button{padding-inline:10px}}
