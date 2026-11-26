@@ -37,8 +37,13 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - name: Install dependencies
-        run: npm install
+      - name: Refresh dependency lock for test builds
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.release_version == '' }}
+        run: |
+          npm install --package-lock-only --ignore-scripts --no-audit
+          npm audit fix --package-lock-only --ignore-scripts || echo "Some advisories remain; review the audit report."
+      - name: Install locked dependencies
+        run: npm ci
       - name: Build web app
         run: npm run build
       - name: Generate Android project
@@ -166,9 +171,29 @@ jobs:
             exit 1
           fi
           sha256sum "$APK"
-      - name: Review dependency advisories
+      - name: Review production dependency advisories (release gate)
         run: npm audit --omit=dev --audit-level=high
-        continue-on-error: true
+        continue-on-error: ${{ github.event_name != 'workflow_dispatch' || inputs.release_version == '' }}
+      - name: Review full dependency tree
+        run: npm audit --audit-level=high
+        continue-on-error: ${{ github.event_name != 'workflow_dispatch' || inputs.release_version == '' }}
+      - name: Persist tested dependency lockfile
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          if git diff --quiet -- package-lock.json; then
+            echo "Lockfile unchanged."
+          else
+            git fetch origin main
+            if [ "$(git rev-parse origin/main)" != "$GITHUB_SHA" ]; then
+              echo "Newer changes exist; do not modify main."
+              exit 0
+            fi
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add package-lock.json
+            git commit -m "Refresh KRAM dependency lock after test build"
+            git push origin HEAD:main
+          fi
       - name: Prepare versioned APK
         run: |
           if [ -f KRAM-RELEASE-VERSION ]; then
