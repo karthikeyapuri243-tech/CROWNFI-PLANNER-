@@ -1517,3 +1517,66 @@ button,input,textarea,select{font-family:inherit}
 .momentum-only .mosaic-bars{height:60px}
 .momentum-only .mosaic-progress>strong{font-size:40px}
 @media(max-width:640px){.daily-counts .mosaic-tile{min-height:94px;padding:12px}.momentum-only .mosaic-progress{padding:13px}}
+
+
+/* Today is a glance, not another task-management screen. */
+.glance-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:13px;min-width:0;margin:0 0 18px}
+.page-today .glance-panel{min-width:0;background:var(--surface);border:1px solid color-mix(in srgb,var(--line) 65%,transparent);border-radius:20px;padding:15px;margin:0;box-shadow:none}
+.glance-panel .section-heading{display:flex;align-items:center;justify-content:space-between;margin:0 0 8px;gap:8px}
+.glance-panel h2{font-size:16px;font-weight:650;letter-spacing:-.025em;margin:0}
+.glance-count{font-size:12px;font-weight:550;color:var(--muted);font-variant-numeric:tabular-nums}
+.glance-row{display:flex;align-items:center;gap:10px;min-width:0;padding:9px 0;min-height:45px;border-bottom:1px solid var(--line)}
+.glance-row:last-child{border-bottom:0}
+.glance-symbol{display:grid;place-items:center;width:32px;height:32px;border-radius:11px;flex:0 0 32px;color:var(--text);font-size:16px}
+.glance-lavender{background:var(--lavender)}
+.glance-peach{background:var(--peach)}
+.glance-neutral{background:var(--surface2)}
+.glance-name{min-width:0;flex:1;font-size:13px;font-weight:550;overflow-wrap:anywhere}
+.glance-row>time,.glance-row>small{white-space:nowrap;color:var(--muted);font-size:11px;flex-shrink:0}
+.glance-row>svg{flex-shrink:0;color:var(--muted)}
+.glance-completed .glance-name{color:var(--muted);text-decoration:line-through}
+.glance-row .glance-overdue{color:#a94545}
+:root.dark .glance-row .glance-overdue{color:#f4a6a6}
+.glance-empty{display:flex;align-items:center;gap:8px;min-height:42px;color:var(--muted);font-size:13px}
+.glance-more{padding:9px 0 0;font-size:12px;color:var(--muted)}
+.page-today .daily-counts .mosaic-tile,.page-today .momentum-only .mosaic-progress{cursor:default}
+@media(max-width:640px){.page-today .glance-panel{border-radius:19px;padding:12px 13px}.glance-grid{gap:11px}.glance-panel h2{font-size:16px}}
+/* Laptop and desktop only: wider canvas, deliberate columns and consistent surfaces. */
+@media(min-width:901px){
+  .sidebar{width:218px;padding:25px 14px 19px;border-right:1px solid var(--line)}
+  .main-area{margin-left:218px;width:calc(100% - 218px);min-width:0}
+  .topbar{height:64px;min-height:64px;padding:10px 28px;background:var(--bg);backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom:1px solid var(--line)}
+  .page-content{width:100%;max-width:1380px;padding:26px clamp(24px,3vw,44px) 55px}
+  .page-heading{margin-bottom:19px}
+  .page-heading h1,.page-today .page-heading h1{font-size:34px}
+  .nav-item{height:43px;border-radius:12px;font-size:13px}
+  .sidebar nav{gap:5px}
+  .page-today .gita-compact{margin-bottom:20px}
+  .page-today .date-switch{width:max-content;margin:0 0 18px}
+  .page-today .daily-mosaic.daily-counts{gap:14px;margin-bottom:18px}
+  .daily-counts .mosaic-tile{min-height:96px;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;align-items:center;gap:6px;padding:17px 20px}
+  .daily-counts .mosaic-tile>svg{grid-column:2;grid-row:1;justify-self:end}
+  .daily-counts .mosaic-tile>strong{grid-column:1;grid-row:1;font-size:34px}
+  .daily-counts .mosaic-tile>small{grid-column:1/-1;grid-row:2}
+  .glance-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}
+  .glance-grid>.glance-panel:last-child{grid-column:1/-1}
+  .page-today .glance-panel{padding:17px 19px}
+  .glance-panel .section-heading h2{font-size:17px}
+  .glance-row{padding:9px 0}
+  .glance-name{font-size:14px}
+  .page-today .momentum-only{margin-top:0}
+  .momentum-only .mosaic-progress{display:grid;grid-template-columns:minmax(135px,1fr) minmax(0,2fr);gap:9px 26px;align-items:center;padding:18px 22px}
+  .momentum-only .mosaic-label{grid-column:1/-1}
+  .momentum-only .mosaic-progress>strong{grid-column:1;grid-row:2;font-size:45px}
+  .momentum-only .mosaic-bars{grid-column:2;grid-row:2/4;height:70px}
+  .momentum-only .mosaic-foot{grid-column:1;grid-row:3}
+  .page-tasks .task-tools{display:grid;grid-template-columns:minmax(0,1fr) minmax(125px,180px) minmax(125px,180px);gap:10px}
+  .page-tasks .task-list,.page-habits .habit-list,.page-internship .internship-work-list{padding:4px 17px}
+  .page-tasks .todo-switch{width:fit-content;max-width:100%}
+  .page-tasks .todo-switch button{min-width:145px}
+  .page-tasks .quick-add-task{max-width:100%}
+  .page-progress .overview-grid{gap:14px}
+  .page-progress .chart-section,.page-settings .settings-section{padding:19px}
+  .page-schedule .full-day-timeline{border-radius:18px}
+}
+@media(min-width:1200px){.glance-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.glance-grid>.glance-panel:last-child{grid-column:auto}.sidebar{width:228px}.main-area{margin-left:228px;width:calc(100% - 228px)}}
