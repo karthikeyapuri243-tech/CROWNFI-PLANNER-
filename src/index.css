@@ -1440,3 +1440,34 @@ button,input,textarea,select{font-family:inherit}
 .topbar:has(.workspace-picker[open]){z-index:60;overflow:visible}
 @media(max-width:640px){.topbar{grid-template-columns:minmax(0,1fr) auto}.topbar .top-actions{grid-column:2;grid-row:1;display:flex;align-items:center;gap:7px}.workspace-picker>summary{min-height:34px;padding:5px 9px;font-size:11px;gap:5px}.workspace-picker>summary>svg:first-child{width:13px;height:13px}.workspace-picker-menu{right:0}.topbar .mobile-brand{justify-self:start}}
 @media(prefers-reduced-motion:reduce){.workspace-picker-menu{animation:none}.workspace-picker .workspace-caret{transition:none}}
+
+
+/* Tonal ink on pastel cards, with lighter companion colours in dark mode. */
+:root{
+  --momentum-ink:#4d4168;
+  --planned-ink:#754b38;
+  --habit-ink:#70435e;
+  --lavender-ink:#514568;
+}
+:root.dark{
+  --momentum-ink:#e2d6fa;
+  --planned-ink:#f2c9ad;
+  --habit-ink:#efc7df;
+  --lavender-ink:#ddd2f2;
+}
+.page-today .daily-mosaic{margin-top:4px;margin-bottom:20px}
+.mosaic-progress{color:var(--momentum-ink)}
+.mosaic-schedule{color:var(--planned-ink)}
+.mosaic-habits{color:var(--habit-ink)}
+.mosaic-progress .mosaic-label,.mosaic-progress .mosaic-foot,.mosaic-progress strong,.mosaic-progress small,.mosaic-tile strong,.mosaic-tile small,.mosaic-tile>svg{color:inherit}
+.mosaic-bar-track{background:color-mix(in srgb,currentColor 10%,transparent)}
+.mosaic-bar-track i{background:color-mix(in srgb,currentColor 48%,transparent)}
+.mosaic-bar-track i.current{background:currentColor}
+.gita-toggle .gita-wisdom-mark,.empty-icon,.habit-emoji,.dashboard-habit-symbol{color:var(--lavender-ink)}
+.entry-hero{color:var(--momentum-ink)}
+.entry-hero-someday,.entry-hero-work{color:var(--planned-ink)}
+.entry-hero-habit{color:var(--lavender-ink)}
+:root.dark .entry-hero{color:var(--momentum-ink)}
+:root.dark .entry-hero-someday,:root.dark .entry-hero-work{color:var(--planned-ink)}
+:root.dark .entry-hero-habit{color:var(--lavender-ink)}
+.entry-sheet .entry-title-label input::placeholder{opacity:.85}
