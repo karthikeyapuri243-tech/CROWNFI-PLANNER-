@@ -1354,3 +1354,43 @@ button,input,textarea,select{font-family:inherit}
 .modal-card .optional{font-size:12px;font-weight:400;color:var(--muted)}
 .sheet-step-content .form-section-label{font-weight:500;font-size:12px;letter-spacing:0}
 @media(max-width:640px){.sheet-step-content{gap:15px}.modal-card input:not([type="radio"]):not([type="checkbox"]),.modal-card textarea,.modal-card select{font-size:16px}}
+
+
+/* Transaction-inspired entry sheets: one prominent input, compact choice pills, then details. */
+.entry-sheet{gap:12px}
+.entry-sheet .sheet-steps{margin:0 0 4px}
+.entry-sheet .sheet-step-content{gap:13px}
+.entry-hero{display:flex;flex-direction:column;justify-content:center;gap:11px;min-height:156px;padding:18px;border-radius:20px;background:linear-gradient(125deg,#e0e1f7,#ebdded 65%,#f3dcd3);color:#222129}
+.entry-hero-someday,.entry-hero-work{background:linear-gradient(125deg,#f5e2d2,#f2d9d5 65%,#e8d9e8)}
+.entry-hero-habit{background:linear-gradient(125deg,#deddf5,#e7def1 65%,#f0e5d8)}
+:root.dark .entry-hero{background:linear-gradient(125deg,#34334b,#46394c 65%,#4a3731);color:#f4f1ec}
+:root.dark .entry-hero-someday,:root.dark .entry-hero-work{background:linear-gradient(125deg,#49382e,#4a3437 65%,#403243)}
+:root.dark .entry-hero-habit{background:linear-gradient(125deg,#36354d,#41384b 65%,#423b32)}
+.entry-hero-icon{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#ffffff70;flex:0 0 34px;font-size:19px}
+:root.dark .entry-hero-icon{background:#ffffff16}
+.entry-sheet .entry-title-label{display:flex;flex-direction:column;align-items:stretch;gap:7px;color:inherit;font-weight:500;font-size:12px}
+.entry-sheet .entry-title-label>span{opacity:.76}
+.entry-sheet .entry-title-label input:not([type="radio"]):not([type="checkbox"]){width:100%;min-height:42px;padding:0 0 6px;background:transparent;border:0;border-radius:0;box-shadow:none;color:inherit;font-size:clamp(20px,4.8vw,25px);line-height:1.4;font-weight:600;letter-spacing:-.035em;text-align:left;outline:0}
+.entry-sheet .entry-title-label input::placeholder{color:inherit;opacity:.46;font-weight:500}
+.entry-sheet .entry-title-label input:not([type="radio"]):not([type="checkbox"]):focus,.entry-sheet .entry-title-label input:not([type="radio"]):not([type="checkbox"]):focus-visible{background:transparent;border:0;border-bottom:1px solid currentColor;outline:0;box-shadow:none}
+.entry-hero-summary{min-height:0;padding:15px;flex-direction:row;align-items:center;justify-content:flex-start;gap:12px}
+.entry-hero-summary>div{display:grid;gap:2px;min-width:0}
+.entry-hero-summary small{font-size:11px;opacity:.7}
+.entry-hero-summary strong{font-size:17px;font-weight:600;line-height:1.35;overflow-wrap:anywhere}
+.entry-segments{display:flex;gap:4px;background:var(--surface2);border-radius:999px;padding:4px}
+.entry-segments button{flex:1;border:0;border-radius:999px;padding:9px 12px;min-height:38px;background:transparent;color:var(--muted);font-size:13px;font-weight:500}
+.entry-segments button.selected,.entry-date-chips button.selected{background:var(--text);color:var(--accent-ink)}
+.entry-note{padding:0 2px}
+.entry-note summary{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;color:var(--text);font-size:13px;font-weight:500;padding:10px 0;list-style:none}
+.entry-note summary::-webkit-details-marker{display:none}
+.entry-note summary:before{content:'+';font-size:18px;font-weight:400}
+.entry-note[open] summary:before{content:'−'}
+.entry-note summary span{margin-left:auto;font-size:11px;font-weight:400;color:var(--muted)}
+.entry-note textarea{margin:2px 0 0;min-height:66px}
+.entry-date-chips{display:flex;gap:7px;flex-wrap:wrap}
+.entry-date-chips button{border:0;border-radius:999px;padding:8px 14px;background:var(--surface2);color:var(--text);font-weight:500;font-size:12px;min-height:34px}
+.entry-choice-label{font-size:13px;font-weight:500}
+.entry-sheet .modal-actions{margin-top:4px;padding-top:9px}
+.entry-sheet .modal-actions .primary-button,.entry-sheet .modal-actions .secondary-button{min-height:46px;font-size:13px;border-radius:999px}
+.entry-sheet .modal-actions .primary-button:only-child{width:100%;flex:1}
+@media(max-width:640px){.entry-sheet{padding:16px 16px max(18px,env(safe-area-inset-bottom))}.entry-hero{padding:16px;min-height:144px}.entry-hero-summary{min-height:0;padding:13px}.entry-sheet .sheet-step-content{gap:12px}.entry-sheet .entry-title-label input:not([type="radio"]):not([type="checkbox"]){font-size:22px}}
