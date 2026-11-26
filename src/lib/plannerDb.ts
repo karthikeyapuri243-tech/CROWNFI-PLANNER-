@@ -33,7 +33,7 @@ export async function deletePlannerTaskSeries(userId:string,rootId:string){
   return matches.length;
 }
 export function subscribePlannerHabits(userId:string,cb:(items:any[])=>void){return onSnapshot(query(collection(db,HABITS),where('userId','==',userId)),s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),e=>console.error(e));}
-export async function createPlannerHabit(userId:string,name:string,settings:any={}){return addDoc(collection(db,HABITS),{userId,name,emoji:settings.emoji||'✦',trackingType:settings.trackingType||'check',targetValue:settings.targetValue||0,unit:settings.unit||'',reminderTime:settings.reminderTime||null,reminderMinutesBefore:settings.reminderMinutesBefore??10,allowedSkipsPerWeek:Math.max(0,Math.min(7,Number(settings.allowedSkipsPerWeek??1))),createdAt:new Date().toISOString()});}
+export async function createPlannerHabit(userId:string,name:string,settings:any={}){return addDoc(collection(db,HABITS),{userId,name,emoji:settings.emoji||'✦',goalType:settings.goalType==='quit'?'quit':'build',trackingType:settings.trackingType||'check',targetValue:settings.targetValue||0,unit:settings.unit||'',reminderTime:settings.reminderTime||null,reminderMinutesBefore:settings.reminderMinutesBefore??10,allowedSkipsPerWeek:Math.max(0,Math.min(7,Number(settings.allowedSkipsPerWeek??1))),createdAt:new Date().toISOString()});}
 export async function updatePlannerHabit(id:string,payload:any){return updateDoc(doc(db,HABITS,id),{...payload,updatedAt:new Date().toISOString()});}
 export async function deletePlannerHabit(id:string){return deleteDoc(doc(db,HABITS,id));}
 export function subscribePlannerCheckins(userId:string,cb:(items:any[])=>void){return onSnapshot(query(collection(db,CHECKINS),where('userId','==',userId)),s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),e=>console.error(e));}
@@ -44,7 +44,7 @@ export async function createPlannerBlock(userId:string,payload:any){return addDo
 export async function updatePlannerBlock(id:string,payload:any){return updateDoc(doc(db,BLOCKS,id),{...payload,updatedAt:new Date().toISOString()});}
 export async function deletePlannerBlock(id:string){return deleteDoc(doc(db,BLOCKS,id));}
 
-export function subscribeInternshipTasks(userId:string,cb:(items:any[])=>void){return onSnapshot(query(collection(db,TASKS),where('userId','==',userId)),s=>cb(s.docs.filter(d=>d.data().workspace==='internship').map(d=>({id:d.id,...d.data()}))),e=>console.error('KRAM internship sync failed:',e));}
+export function subscribeInternshipTasks(userId:string,cb:(items:any[])=>void,onError?:(error:Error)=>void){return onSnapshot(query(collection(db,TASKS),where('userId','==',userId)),s=>cb(s.docs.filter(d=>d.data().workspace==='internship').map(d=>({id:d.id,...d.data()}))),e=>{console.error('KRAM internship sync failed:',e);onError?.(e);});}
 export async function createInternshipTask(userId:string,payload:any){return addDoc(collection(db,TASKS),{...payload,workspace:'internship',userId,createdAt:new Date().toISOString()});}
 export async function updateInternshipTask(id:string,payload:any){return updateDoc(doc(db,TASKS,id),{...payload,updatedAt:new Date().toISOString()});}
 export async function deleteInternshipTask(id:string){return deleteDoc(doc(db,TASKS,id));}
