@@ -44,7 +44,7 @@ const refreshVisibleViewport=()=>{
     const typing=focused instanceof HTMLElement&&focused.matches('textarea,input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=range]):not([type=date]):not([type=time])');
     const card=typing?focused.closest<HTMLElement>('.modal-card'):null;
     document.documentElement.classList.toggle('kram-sheet-input-focused',!!card);
-    if(!card||!window.matchMedia('(max-width:900px)').matches)return;
+    if(!card||!(focused instanceof HTMLElement)||!window.matchMedia('(max-width:900px)').matches)return;
     const bounds=card.getBoundingClientRect();
     const field=focused.getBoundingClientRect();
     // Scroll only the form, rather than moving the background planner.
