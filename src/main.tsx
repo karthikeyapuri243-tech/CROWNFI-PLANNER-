@@ -27,6 +27,38 @@ if (Capacitor.isNativePlatform()) {
   registerSW({immediate: true});
 }
 
+// Fit mobile sheets to the visible viewport, including the Android soft keyboard.
+// Keep this outside React so keyboard resize does not re-render the planner.
+const rootStyle=document.documentElement.style;
+let viewportFrame=0;
+const refreshVisibleViewport=()=>{
+  if(viewportFrame)cancelAnimationFrame(viewportFrame);
+  viewportFrame=requestAnimationFrame(()=>{
+    viewportFrame=0;
+    const viewport=window.visualViewport;
+    // Do not change the sheet's layout when the user pinch-zooms.
+    const useVisual=viewport&&Math.abs(viewport.scale-1)<0.02;
+    rootStyle.setProperty('--kram-visible-height',Math.round(useVisual?viewport.height:window.innerHeight)+'px');
+    rootStyle.setProperty('--kram-visible-top',Math.max(0,Math.round(useVisual?viewport.offsetTop:0))+'px');
+    const focused=document.activeElement;
+    const typing=focused instanceof HTMLElement&&focused.matches('textarea,input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=range]):not([type=date]):not([type=time])');
+    const card=typing?focused.closest<HTMLElement>('.modal-card'):null;
+    document.documentElement.classList.toggle('kram-sheet-input-focused',!!card);
+    if(!card||!window.matchMedia('(max-width:900px)').matches)return;
+    const bounds=card.getBoundingClientRect();
+    const field=focused.getBoundingClientRect();
+    // Scroll only the form, rather than moving the background planner.
+    if(field.bottom>bounds.bottom-14)card.scrollTop+=field.bottom-bounds.bottom+14;
+    else if(field.top<bounds.top+10)card.scrollTop-=bounds.top+10-field.top;
+  });
+};
+window.addEventListener('resize',refreshVisibleViewport,{passive:true});
+window.visualViewport?.addEventListener('resize',refreshVisibleViewport,{passive:true});
+window.visualViewport?.addEventListener('scroll',refreshVisibleViewport,{passive:true});
+document.addEventListener('focusin',refreshVisibleViewport);
+document.addEventListener('focusout',refreshVisibleViewport);
+refreshVisibleViewport();
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
