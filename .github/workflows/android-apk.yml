@@ -73,6 +73,17 @@ jobs:
           for permission in permissions:
               if permission not in content:
                   content = content.replace("<application", permission + "\n    <application", 1)
+          # Resize the WebView for the soft keyboard rather than covering the form.
+          import re
+          activity = re.compile(r'<activity\b[^>]*\bandroid:name="[^"]*MainActivity"[^>]*>', re.S)
+          def resize_activity(match):
+              tag = match.group(0)
+              if 'android:windowSoftInputMode=' in tag:
+                  return re.sub(r'android:windowSoftInputMode="[^"]*"', 'android:windowSoftInputMode="adjustResize"', tag)
+              return tag[:-1] + ' android:windowSoftInputMode="adjustResize">'
+          content, count = activity.subn(resize_activity, content, count=1)
+          if count != 1:
+              raise SystemExit("Could not find MainActivity for keyboard resizing")
           manifest.write_text(content)
           PY
       - name: Sync native plugins and web assets
