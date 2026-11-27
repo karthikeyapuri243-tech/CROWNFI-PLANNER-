@@ -94,3 +94,25 @@ export async function restoreDeletedPlannerTask(item:DeletedPlannerTask){
   batch.set(doc(db,TASKS,item.restoreId),item.data);
   await batch.commit();
 }
+
+export type DeletedPlannerRoutine = { userId:string; id:string; kind:'habit'|'commitment'; data:Record<string,any> };
+// Keep the original habit ID so historical check-ins and streaks remain linked.
+export async function deletePlannerRoutineWithUndo(id:string,userId:string,kind:'habit'|'commitment'):Promise<DeletedPlannerRoutine>{
+  if(auth.currentUser?.uid!==userId)throw new Error('Account changed');
+  const ref=doc(db,kind==='habit'?HABITS:BLOCKS,id);
+  const data=await runTransaction(db,async transaction=>{
+    const snapshot=await transaction.get(ref);
+    if(!snapshot.exists()||snapshot.data().userId!==userId)throw new Error('Item unavailable');
+    const original=snapshot.data();
+    transaction.delete(ref);
+    return original;
+  });
+  return {userId,id,kind,data};
+}
+export async function restoreDeletedPlannerRoutine(item:DeletedPlannerRoutine){
+  if(auth.currentUser?.uid!==item.userId||item.data.userId!==item.userId)throw new Error('Account changed');
+  // Restore the same ID. The owner-only Firestore rules continue to apply.
+  const batch=writeBatch(db);
+  batch.set(doc(db,item.kind==='habit'?HABITS:BLOCKS,item.id),item.data);
+  await batch.commit();
+}
