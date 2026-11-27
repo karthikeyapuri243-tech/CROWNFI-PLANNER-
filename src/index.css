@@ -1834,3 +1834,36 @@ button,input,textarea,select{font-family:inherit}
 .timetable-now-line{left:0;right:auto;width:52px;z-index:6}
 .timetable-now-line span{right:auto;left:0;top:-12px;font-size:9px;white-space:nowrap;padding:2px 4px}
 @media(max-width:600px){.task-event-span .timetable-event-main strong{font-size:11px}.task-event-span .timetable-complete{width:22px;height:22px;flex-basis:22px}.habit-dates input,.habit-dates button{font-size:12px}.compact-habit-form .emoji-choice{width:32px;height:32px;min-height:32px;flex-basis:32px}}
+
+/* Keyboard-safe sheets: fit the actual visible viewport, not the full layout viewport. */
+@media(max-width:900px){
+  .modal-backdrop{
+    inset:auto 0 auto 0;
+    top:var(--kram-visible-top,0px);
+    height:var(--kram-visible-height,100dvh);
+    max-height:var(--kram-visible-height,100dvh);
+    box-sizing:border-box;
+    align-items:end;
+    justify-items:center;
+    overflow:hidden;
+  }
+  .modal-backdrop .modal-card{
+    box-sizing:border-box;
+    max-height:calc(var(--kram-visible-height,100dvh) - 12px);
+    min-height:0;
+    overflow-y:auto;
+    overflow-x:hidden;
+    align-content:start;
+    overscroll-behavior:contain;
+    scroll-padding-block:12px;
+  }
+  .kram-sheet-input-focused .modal-backdrop .modal-card{
+    padding-bottom:16px;
+    scroll-padding-bottom:18px;
+  }
+  .kram-sheet-input-focused .modal-backdrop .modal-actions{
+    position:static;
+    bottom:auto;
+    margin-bottom:0;
+  }
+}
