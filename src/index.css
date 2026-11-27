@@ -1790,3 +1790,47 @@ button,input,textarea,select{font-family:inherit}
 .update-version-list dd{margin:0;font-size:14px;font-weight:650;font-variant-numeric:tabular-nums;color:var(--text)}
 .app-update-panel .update-release-link{display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;text-decoration:none}
 .app-update-panel .secondary-button{min-height:44px}
+
+/* Compact habits: a calm green build palette and a warm amber quit palette. */
+.habit-build{--habit-ink:#356349;--habit-tint:#e5f0e7;--habit-edge:#a0c5ad}
+.habit-quit{--habit-ink:#945c32;--habit-tint:#f8ece0;--habit-edge:#dfba9a}
+.dark .habit-build{--habit-ink:#a9d7b6;--habit-tint:#293c31;--habit-edge:#577c62}
+.dark .habit-quit{--habit-ink:#efc19a;--habit-tint:#49372b;--habit-edge:#8e694d}
+.habit-kind-card{display:flex;flex-wrap:wrap;align-items:center;gap:8px;border-inline-start:4px solid var(--habit-edge);padding:12px}
+.habit-kind-card .habit-check.checked{background:var(--habit-tint);color:var(--habit-ink);border-color:var(--habit-edge)}
+.habit-kind-label{display:flex!important;align-items:center;gap:4px;font-size:11px!important;color:var(--habit-ink)!important;margin-top:4px}
+.habit-quit-actions{display:flex;flex-basis:100%;gap:7px;flex-wrap:wrap;padding-top:4px}
+.habit-action-pill{display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:1;min-height:36px;padding:5px 8px;border:1px solid var(--habit-edge);border-radius:10px;background:var(--surface);color:var(--habit-ink);font-size:11px;font-weight:600}
+.habit-action-pill.selected{background:var(--habit-tint)}
+.habit-date-range{font-size:11px;color:var(--muted)}
+.habit-inactive-list{margin:12px 0;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.habit-inactive-list summary{font-size:12px;color:var(--muted);cursor:pointer}
+.habit-inactive-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--line)}
+.habit-inactive-row>span{flex:1;min-width:0;overflow-wrap:anywhere}
+.habit-inactive-row>small{font-size:11px;color:var(--muted)}
+.compact-habit-form .sheet-step-content{gap:10px}
+.compact-habit-form .entry-hero{padding:8px 10px;min-height:52px}
+.compact-habit-form .entry-title-label input{min-height:40px;font-size:17px}
+.habit-goal-choice{display:flex;align-items:center;justify-content:center;gap:7px;padding:9px;border-radius:12px;min-height:42px;background:var(--habit-tint);color:var(--habit-ink);border:2px solid transparent}
+.habit-goal-choice.selected{border-color:var(--habit-ink)}
+.compact-habit-form .emoji-picker{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-start}
+.compact-habit-form .emoji-choice{width:35px;height:35px;min-height:35px;padding:0;flex:0 0 35px;font-size:17px}
+.habit-dates{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.habit-dates label{min-width:0;display:grid;gap:4px;font-size:11px;color:var(--muted)}
+.habit-dates label>span,.habit-more label>span{display:flex;align-items:center;gap:5px}
+.habit-dates input,.habit-dates button{width:100%;min-width:0;min-height:42px;padding:7px 8px;font-size:12px;box-sizing:border-box}
+.habit-end-date{grid-column:1/-1}
+.habit-more summary{display:flex;align-items:center;gap:7px;min-height:38px}
+.compact-habit-form .modal-actions{gap:8px}
+.compact-habit-form .modal-actions button{min-height:44px}
+/* Short timeline events prioritise readable task titles; edit through title. */
+.task-event-span{align-items:center;gap:6px;padding:4px 7px!important}
+.task-event-span .timetable-event-main{gap:2px;justify-content:center;align-self:stretch;min-height:0;flex:1}
+.task-event-span .timetable-event-main strong{font-size:12px;line-height:1.2;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;-webkit-line-clamp:unset;max-width:100%;min-height:14px}
+.task-event-span .timetable-event-main strong .priority-dot{display:inline-block;vertical-align:middle;margin-right:3px}
+.task-event-compact .timetable-event-main>span:not(.timeline-type-tag){display:none}
+.task-event-compact .timetable-event-actions{display:none}
+.task-event-compact .timetable-complete{width:24px;height:24px;flex:0 0 24px;box-shadow:none}
+.timetable-now-line{left:0;right:auto;width:52px;z-index:6}
+.timetable-now-line span{right:auto;left:0;top:-12px;font-size:9px;white-space:nowrap;padding:2px 4px}
+@media(max-width:600px){.task-event-span .timetable-event-main strong{font-size:11px}.task-event-span .timetable-complete{width:22px;height:22px;flex-basis:22px}.habit-dates input,.habit-dates button{font-size:12px}.compact-habit-form .emoji-choice{width:32px;height:32px;min-height:32px;flex-basis:32px}}
