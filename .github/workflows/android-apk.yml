@@ -12,6 +12,7 @@ on:
     branches: [main]
     paths:
       - 'src/**'
+      - 'tests/**'
       - 'public/**'
       - 'package.json'
       - 'package-lock.json'
@@ -44,6 +45,8 @@ jobs:
           npm audit fix --package-lock-only --ignore-scripts || echo "Some advisories remain; review the audit report."
       - name: Install locked dependencies
         run: npm ci
+      - name: Run planner regression tests
+        run: node --experimental-strip-types --test tests/planner-logic.test.mjs
       - name: Build web app
         run: npm run build
       - name: Generate Android project
