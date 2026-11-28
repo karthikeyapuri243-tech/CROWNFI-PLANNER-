@@ -6,6 +6,7 @@ import { LocalNotifications } from '@capacitor/local-notifications';
 import { onAuthStateChanged, signOut, User } from 'firebase/auth';
 import { auth } from './lib/firebase';
 import Auth from './components/Auth';
+import { habitAddedDate, habitStarts, habitArchived, habitActiveOn, timeIntervalsOverlap } from './lib/plannerLogic';
 import { createPlannerTask, createRecurringPlannerOccurrence, updatePlannerTask, deletePlannerTask, deletePlannerTaskSeries, deletePlannerTaskWithUndo, restoreDeletedPlannerTask, type DeletedPlannerTask, type DeletedPlannerRoutine, deletePlannerRoutineWithUndo, restoreDeletedPlannerRoutine, subscribePlannerTasks, subscribeInternshipTasks, createInternshipTask, updateInternshipTask, createPlannerBlock, updatePlannerBlock, subscribePlannerBlocks, createPlannerHabit, updatePlannerHabit, subscribePlannerHabits, setPlannerHabitCheckin, subscribePlannerCheckins } from './lib/plannerDb';
 import { Dumbbell, Bell, CalendarDays, CalendarRange, Check, CheckCircle2, ChevronLeft, ChevronRight, Circle, Clock3, Flame, LayoutDashboard, ListTodo, Lightbulb, SlidersHorizontal, Info, Menu, Moon, Plus, Search, Sun, Target, Trash2, TrendingUp, X, Settings, BellRing, Palette, Smartphone, ShieldCheck, BriefcaseBusiness, SkipForward, Undo2, Trophy, Pencil, Archive, ArchiveRestore, Copy, MoreHorizontal } from 'lucide-react';
 // Load celebration effects only when needed, not during startup.
@@ -36,10 +37,6 @@ type Tab = 'fitness'|'today'|'schedule'|'tasks'|'upcoming'|'habits'|'progress'|'
 const dateKey = (d:Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const nextRepeatDate = (value:string,repeat:NonNullable<Task['repeat']>) => { const d=new Date(value+'T12:00:00'); if(repeat==='daily')d.setDate(d.getDate()+1); else if(repeat==='weekly')d.setDate(d.getDate()+7); else { do { d.setDate(d.getDate()+1); } while(d.getDay()===0||d.getDay()===6); } return dateKey(d); };
 const todayKey = () => dateKey(new Date());
-const habitAddedDate=(h:Habit)=>{const added=new Date(h.createdAt);return h.createdAt&&Number.isFinite(added.getTime())?dateKey(added):'';};
-const habitStarts=(h:Habit)=>h.startDate||habitAddedDate(h);
-const habitArchived=(h:Habit)=>!!h.archivePeriods?.some(p=>!p.to);
-const habitActiveOn=(h:Habit,date:string)=>(!habitStarts(h)||date>=habitStarts(h))&&(!h.endDate||date<=h.endDate)&&!(h.archivePeriods||[]).some(p=>date>=p.from&&(!p.to||date<p.to));
 const canLogHabit=(h:Habit,date:string)=>habitActiveOn(h,date)&&date<=todayKey();
 const entryDayBefore=(day:string)=>{const d=new Date(day+'T12:00:00');d.setDate(d.getDate()-1);return dateKey(d);};
 // Calculate from the same dated personal tasks as the dashboard, never from activity markers.
@@ -642,7 +639,7 @@ export default function App() {
           : b.date === plannedDate
       );
       const overlapsClass = matchingBlocks.some(b =>
-        start < timeToMinutes(b.endTime) && finish > timeToMinutes(b.startTime)
+        timeIntervalsOverlap(start,finish,timeToMinutes(b.startTime),timeToMinutes(b.endTime))
       );
       const overlapsTask = tasks.some(t =>
         t.id !== editing?.id &&
@@ -650,8 +647,7 @@ export default function App() {
         !t.completed &&
         (t.scheduledDate||t.dueDate) === plannedDate &&
         !!t.dueTime &&
-        start < timeToMinutes(t.dueTime) + (t.durationMinutes || 60) &&
-        finish > timeToMinutes(t.dueTime)
+        timeIntervalsOverlap(start,finish,timeToMinutes(t.dueTime),timeToMinutes(t.dueTime)+(t.durationMinutes||60))
       );
       if (overlapsClass || overlapsTask) {
         setTaskError(overlapsClass
@@ -781,8 +777,8 @@ export default function App() {
   const placeTaskAt=async(taskId:string,time:string)=>{
     const task=tasks.find(t=>t.id===taskId);if(!task||task.completed||task.listKind==='someday')return;
     const start=timeToMinutes(time),finish=start+(task.durationMinutes||30);
-    const blocked=activeBlocks.some(x=>start<timeToMinutes(x.endTime)&&finish>timeToMinutes(x.startTime));
-    const occupied=todaysTasks.some(x=>!x.completed&&x.id!==taskId&&!!x.dueTime&&start<timeToMinutes(x.dueTime)+(x.durationMinutes||60)&&finish>timeToMinutes(x.dueTime));
+    const blocked=activeBlocks.some(x=>timeIntervalsOverlap(start,finish,timeToMinutes(x.startTime),timeToMinutes(x.endTime)));
+    const occupied=todaysTasks.some(x=>!x.completed&&x.id!==taskId&&!!x.dueTime&&timeIntervalsOverlap(start,finish,timeToMinutes(x.dueTime),timeToMinutes(x.dueTime)+(x.durationMinutes||60)));
     if(finish>1440){setSmartMessage('This task would finish after midnight. Choose an earlier time.');setDragTaskId('');return;}
     if(blocked||occupied){setSmartMessage('That slot overlaps another commitment. Choose another hour.');setDragTaskId('');return;}
     try{await updatePlannerTask(taskId,{scheduledDate:selectedDate,dueTime:time,durationMinutes:task.durationMinutes||30});setSmartMessage('Task placed on your timetable.');}
